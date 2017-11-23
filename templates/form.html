@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign In</title>
+</head>
+<body>
+    <!--在Jinja2模板中，我们用{{ name }}表示一个需要替换的变量。很多时候，还需要循环、条件判断等指令语句，在Jinja2中，用{% ... %}表示指令-->
+    <!--比如循环输出页码：
+        {% for i in page_list %}
+            <a href="/page/{{ i }}">{{ i }}</a>
+        {% endfor %}
+        如果page_list是一个list：[1, 2, 3, 4, 5]，上面的模板将输出5个超链接。
+        除了Jinja2，常见的模板还有：
+            Mako：用<% ... %>和${xxx}的一个模板；
+            Cheetah：也是用<% ... %>和${xxx}的一个模板；
+            Django：Django是一站式框架，内置一个用{% ... %}和{{ xxx }}的模板。-->
+    {% if message %}
+    <p style="color: red">{{message}}</p>
+    {% endif %}
+    <form action="/signin" method="post">
+        <legend>Please sign in:</legend>
+        <p><input name="username" placeholder="Username" value="{{username}}"></p>
+        <p><input name="password" placeholder="Password" type="password"></p>
+        <p><button type="submit">Sign In</button></p>
+    </form>
+</body>
+</html>
