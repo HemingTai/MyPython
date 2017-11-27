@@ -3,6 +3,7 @@
 
 __author__ = 'Hem1ng'
 
+
 import logging, aiomysql; logging.basicConfig(level=logging.INFO)
 
 def sqlLog(sql, args=()):
@@ -21,7 +22,7 @@ async def create_pool(loop, **kw):
         user = kw['user'],
         password = kw['password'],
         db = kw['database'],
-        # charset = kw.get('charset', 'utf-8'),
+        charset = kw.get('charset', 'utf8'),
         autocommit = kw.get('autocommit', True),
         maxsize = kw.get('maxsize', 10),
         minsize = kw.get('minsize', 1),
@@ -43,7 +44,7 @@ async def select(sql, args, size=None):
     global __pool
     async with __pool.get() as conn:
         async with conn.cursor(aiomysql.DictCursor) as cur:
-            await cur.excute(sql.replace('?', '%s'), args or ())
+            await cur.execute(sql.replace('?', '%s'), args or ())
             if size:
                 rs = await cur.fetchmany(size)
             else:
@@ -54,30 +55,27 @@ async def select(sql, args, size=None):
 # INSERT、UPDATE、DELETE语句，可以定义一个通用的execute()函数，因为这3种SQL的执行都需要相同的参数，以及返回一个整数表示影响的行数
 # execute()函数和select()函数所不同的是，cursor对象不返回结果集，而是通过rowcount返回结果数
 async def excute(sql, args, autocommit=True):
-    affected = 0
-    print('excute')
     sqlLog(sql)
     async with __pool.get() as conn:
         if not autocommit:
             await conn.begin()
         try:
             async with conn.cursor(aiomysql.DictCursor) as cur:
-                await cur.excute(sql.replace('?', '%s'), args)
+                await cur.execute(sql.replace('?', '%s'), args)
                 affected = cur.rowcount
-                print('end excute')
             if not autocommit:
                 await conn.commit()
         except BaseException as e:
             if not autocommit:
                 await conn.rollback()
-                raise
+            raise
         return affected
 
 def create_args_string(num):
     L = []
     for n in range(num):
         L.append('?')
-    return ','.join(L)
+    return ', '.join(L)
 
 class Field(object):
 
@@ -92,7 +90,7 @@ class Field(object):
 
 class StringField(Field):
 
-    def __init__(self, name = None, primary_key = False,default = None, ddl = 'varchar(100)'):
+    def __init__(self, name = None, primary_key = False, default = None, ddl = 'varchar(100)'):
         super().__init__(name, ddl, primary_key, default)
 
 class BooleanField(Field):
@@ -146,10 +144,8 @@ class ModelMetaClass(type):
         attrs['__primary_key__'] = primaryKey  # 主键属性名
         attrs['__fields__'] = fields  # 除主键外的属性名
         attrs['__select__'] = 'select `%s`, %s from `%s`' % (primaryKey, ', '.join(escaped_fields), tableName)
-        attrs['__insert__'] = 'insert into `%s` (%s, `%s`) values (%s)' % (
-        tableName, ', '.join(escaped_fields), primaryKey, create_args_string(len(escaped_fields) + 1))
-        attrs['__update__'] = 'update `%s` set %s where `%s`=?' % (
-        tableName, ', '.join(map(lambda f: '`%s`=?' % (mappings.get(f).name or f), fields)), primaryKey)
+        attrs['__insert__'] = 'insert into `%s` (%s, `%s`) values (%s)' % (tableName, ', '.join(escaped_fields), primaryKey, create_args_string(len(escaped_fields) + 1))
+        attrs['__update__'] = 'update `%s` set %s where `%s`=?' % (tableName, ', '.join(map(lambda f: '`%s`=?' % (mappings.get(f).name or f), fields)), primaryKey)
         attrs['__delete__'] = 'delete from `%s` where `%s`=?' % (tableName, primaryKey)
         return type.__new__(cls, name, bases, attrs)
 
@@ -189,7 +185,7 @@ class Model(dict, metaclass=ModelMetaClass):
             sql.append(where)
         if args is None:
             args = []
-        orderBy = kw.get('orderby', None)
+        orderBy = kw.get('orderBy', None)
         if orderBy:
             sql.append('order by')
             sql.append(orderBy)
@@ -246,5 +242,4 @@ class Model(dict, metaclass=ModelMetaClass):
         rows = await excute(self.__delete__, args)
         if rows != 1:
             logging.info('failed to remove by primary key: affected rows: %s' % rows)
-
 
