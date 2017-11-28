@@ -17,8 +17,8 @@ def init_jinja2(app, **kw):
     logging.info('init jinja2...')
     options = dict(
         autoescape = kw.get('autoescape', True),
-        block_start_string = kw.get('block_start_string','{'),
-        block_end_string=kw.get('block_end_string', '}'),
+        block_start_string = kw.get('block_start_string','{%'),
+        block_end_string=kw.get('block_end_string', '%}'),
         variable_start_string=kw.get('variable_start_string', '{{'),
         variable_end_string=kw.get('variable_end_string', '}}'),
         auto_reload = kw.get('auto_reload', True)
@@ -76,7 +76,7 @@ async def response_factory(app, handler):
                 resp.content_type = 'application/json;charset=utf-8'
                 return resp
             else:
-                resp = web.Response(body=app['__template__'].get_template(template).render(**r).encode('utf-8'))
+                resp = web.Response(body=app['__templating__'].get_template(template).render(**r).encode('utf-8'))
                 resp.content_type = 'text/html;charset=utf-8'
                 return resp
         if isinstance(r, int) and r >= 100 and r < 600:
@@ -87,7 +87,7 @@ async def response_factory(app, handler):
                 return web.Response(t, str(m))
         # default
         resp = web.Response(body=str(r).encode('utf-8'))
-        resp.content_type = 'text/plain;charset=utf8'
+        resp.content_type = 'text/plain;charset=utf-8'
         return resp
     return response
 

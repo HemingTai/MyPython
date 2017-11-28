@@ -50,7 +50,7 @@ def get_named_kw_args(fn):
     for name, param in params.items():
         if param.kind == inspect.Parameter.KEYWORD_ONLY:
             args.append(name)
-        return tuple(args)
+    return tuple(args)
 
 def has_named_kw_args(fn):
     params = inspect.signature(fn).parameters
@@ -99,7 +99,7 @@ class RequestHandler(object):
                     if not isinstance(params, dict):
                         return web.HTTPBadRequest('Json body must be object')
                     kw = params
-                elif ct.startswith('application/x-www-form-urlencoded') or ct.startswith('multipart/form-date'):
+                elif ct.startswith('application/x-www-form-urlencoded') or ct.startswith('multipart/form-data'):
                     params = await request.post()
                     kw = dict(**params)
                 else:
@@ -110,33 +110,34 @@ class RequestHandler(object):
                     kw = dict()
                     for k, v in parse.parse_qs(qs, True).items():
                         kw[k] = v[0]
-            if kw is None:
-                kw = dict(**request.match_info)
-            else:
-                if not self._has_var_kw_arg and self._named_kw_args:
-                    # remove all unnamed kw
-                    copy = dict()
-                    for name in self._named_kw_args:
+        if kw is None:
+            kw = dict(**request.match_info)
+        else:
+            if not self._has_var_kw_arg and self._named_kw_args:
+                # remove all unnamed kw
+                copy = dict()
+                for name in self._named_kw_args:
+                    if name in kw:
                         copy[name] = kw[name]
-                    kw = copy
-                # check named arg:
-                    for k, v in request.match_info.items():
-                        if k in kw:
-                            logging.warning('Duplicate arg name in named arg and kw args: %s' % k)
-                        kw[k] = v
-                    if self._has_request_arg:
-                        kw['request'] = request
-                    # check required kw
-                    if self._required_kw_args:
-                        for name in self._required_kw_args:
-                            if not name in kw:
-                                return web.HTTPBadRequest('Missing argument: %s' % name)
-                    logging.info('call with args %s' % str(kw))
-                    try:
-                        r = await self._func(**kw)
-                        return r
-                    except APIError as e:
-                        return dict(error=e.error, data=e.data, message=e.message)
+                kw = copy
+            # check named arg:
+            for k, v in request.match_info.items():
+                if k in kw:
+                    logging.warning('Duplicate arg name in named arg and kw args: %s' % k)
+                kw[k] = v
+        if self._has_request_arg:
+            kw['request'] = request
+        # check required kw
+        if self._required_kw_args:
+            for name in self._required_kw_args:
+                if not name in kw:
+                    return web.HTTPBadRequest('Missing argument: %s' % name)
+        logging.info('call with args %s' % str(kw))
+        try:
+            r = await self._func(**kw)
+            return r
+        except APIError as e:
+            return dict(error=e.error, data=e.data, message=e.message)
 
 def add_static(app):
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
