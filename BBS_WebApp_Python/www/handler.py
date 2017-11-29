@@ -103,7 +103,7 @@ async def authenticate(*, email, password):
     r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return r
 
-@post('/signout')
+@get('/signout')
 def signout(request):
     referer = request.headers.get('Referer')
     r = web.HTTPFound(referer or '/')
