@@ -49,6 +49,9 @@
                             <a class="#0"><i class="uk-icon-user"></i> {{ __user__.name }}</a>
                             <div class="uk-dropdown uk-dropdown-navbar">
                                 <ul class="uk-nav uk-nav-navbar">
+                                    {% if __user__.admin %}
+                                        <li><a href="/manage/blogs/create"><i class="uk-icon-edit"></i>编辑日志</a></li>
+                                    {% endif %}
                                     <li><a href="/signout"><i class="uk-icon-sign-out"></i> 登出</a></li>
                                 </ul>
                             </div>
@@ -78,7 +81,7 @@
                     <a target="_blank" href="https://github.com/HemingTai" class="uk-icon-button uk-icon-github"></a>
                 </p>
                 <p>Power by <a href="https://github.com/HemingTai/PythonRepo">Awesome Python Webapp</a>. Copyright &copy; 2017 [<a href="/manage/" target="_blank">Manage</a>]</p>
-                <p><a href="https://github.com/HemingTai/PythonRepo" target="_blank">www.HemingRai.com</a>.All rights reserved.</p>
+                <p><a href="https://github.com/HemingTai/PythonRepo" target="_blank">www.HemingTai.com</a>.All rights reserved.</p>
             </div>
         </div>
     </div>
