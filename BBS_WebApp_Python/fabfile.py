@@ -109,7 +109,7 @@ def rollback():
                 print ('                   %s' % f)
         print ('==================================================')
         print ('')
-        yn = raw_input ('continue? y/N ')
+        yn = input ('continue? y/N ')
         if yn != 'y' and yn != 'Y':
             print ('Rollback cancelled.')
             return
@@ -143,17 +143,17 @@ def restore2local():
     print ('==================================================')
     print ('')
     try:
-        num = int(raw_input ('Restore file: '))
+        num = int(input ('Restore file: '))
     except ValueError:
         print ('Invalid file number.')
         return
     restore_file = files[num]
-    yn = raw_input('Restore file %s: %s? y/N ' % (num, restore_file))
+    yn = input('Restore file %s: %s? y/N ' % (num, restore_file))
     if yn != 'y' and yn != 'Y':
         print ('Restore cancelled.')
         return
     print ('Start restore to local database...')
-    p = raw_input('Input mysql root password: ')
+    p = input('Input mysql root password: ')
     sqls = [
         'drop database if exists awesome;',
         'create database awesome;',
