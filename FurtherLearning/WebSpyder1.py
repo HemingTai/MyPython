@@ -12,6 +12,7 @@ class DouBanSpider(object):
         self.page = 1
         self.cur_url = 'https://movie.douban.com/top250?start={page}&filter='
         self.datas = []
+        self.picLinks = []
         self._top_num = 1
         print('豆瓣电影爬虫准备就绪, 准备爬取数据...')
 
@@ -29,10 +30,20 @@ class DouBanSpider(object):
                 self._top_num += 1
         self.datas.extend(temp_data)
 
+    def find_picLinks(self, my_page):
+        temp_data = []
+        movie_picLinks = re.findall(r'<img width="100" alt=.*?src=(.*?)class="">', my_page, re.S)
+        for index, link in enumerate(movie_picLinks):
+            temp_data.append(link)
+        self.picLinks.extend(temp_data)
+
+
+
     def start_spider(self):
         while self.page <= 4:
             my_page = self.get_page(self.page)
             self.find_title(my_page)
+            self.find_picLinks(my_page)
             self.page += 1
 
 if __name__ == '__main__':
