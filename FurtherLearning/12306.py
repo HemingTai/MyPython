@@ -148,6 +148,7 @@ def getDurationTicket(*, date, duration, onStation, offStation, ticketType='ADUL
             durationTicketList.append(ticket)
     return durationTicketList
 
+# 根据座位筛选
 def getSeatTicketList(*, date, duration, onStation, offStation, ticketType='ADULT', seatType=SEAT.ED):
     if not isinstance(seatType, SEAT):
         raise TypeError
