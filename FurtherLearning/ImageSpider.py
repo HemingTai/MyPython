@@ -9,13 +9,13 @@ from functools import partial
 from bs4 import BeautifulSoup
 from pathlib import Path
 
-
 # 爬虫爬取的原始url
 ORIGINAL_URL = 'http://desk.zol.com.cn/youxi/yingxionglianmeng/'
 # 网页的域名
 HOST_URL = 'http://desk.zol.com.cn'
 # 图片下载路径
-DOWNLOAD_PATH = '/Users/luo/Downloads/Temp'
+DOWNLOAD_PATH = os.path.join(os.path.expanduser(r'~/Downloads'), 'Temp')
+
 
 # ******************** 公共方法 ********************
 
@@ -23,19 +23,19 @@ DOWNLOAD_PATH = '/Users/luo/Downloads/Temp'
 def setImageDownloadPath(path):
     # 构造路径
     downloadPath = Path(path)
-    # 如果路径不存在则创建路径再返回，否则直接返回
+    # 如果路径不存在则创建路径
     if not downloadPath.exists():
         downloadPath.mkdir()
-    return downloadPath
+    os.chdir(path)
 
 # 图片是否需要下载
 def isDownloadImage(url):
     return checkImageIsDownloaded(url)
 
 # 检测图片是否已经下载
-def checkImageIsDownloaded(url):
+def checkImageIsDownloaded(path, url):
     image_name = os.path.basename(url)
-    fileNames = os.listdir(DOWNLOAD_PATH)
+    fileNames = os.listdir(path)
     # 如果文件名不存在则需要下载图片
     if not image_name in fileNames:
         return True
@@ -46,8 +46,6 @@ def checkImageIsDownloaded(url):
 def downloadImage(url):
     # 以路径的最后一部分作为图片的名字
     image_name = '{}'.format(os.path.basename(url))
-    # 切换路径到下载路径
-    os.chdir(DOWNLOAD_PATH)
     image = requests.get(url)
     with open(image_name,'wb') as f:
         f.write(image.content)
@@ -63,7 +61,6 @@ class ImageSpider(object):
     def __get_htmlContent__(self, url):
         resp = requests.get(url)
         if resp.status_code == 200:
-            content = None
             try:
                 content = resp.content.decode('gbk')
             except Exception:
