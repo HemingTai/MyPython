@@ -10,6 +10,7 @@ from pathlib import Path
 
 # 默认文件下载路径
 DOWNLOAD_PATH = os.path.join(os.path.expanduser(r'~/Downloads'), 'Temp')
+SAVE_PATH = os.path.join(os.path.expanduser(r'~/Downloads'), 'Videos.html')
 
 # ******************** 公共方法 ********************
 
@@ -43,3 +44,8 @@ def downloadFile(url):
     file = requests.get(url)
     with open(file_name,'wb') as f:
         f.write(file.content)
+
+# 保存文件
+def saveFile(path,data):
+    with open(path, 'w') as f:
+        f.write(data)
