@@ -73,11 +73,6 @@ class ImageSpider(object):
         html_links = self.__parse_htmlLinks__(html_content)
         return html_links
 
-    # 获取所有图片的下载链接
-    def __get_imageLinks__(self, url):
-        html_content = self.__get_htmlContent__(url)
-        self.__parse_imageLinkAndNextPageUrl__(html_content)
-
     # 解析html网页内容以获取网页链接
     def __parse_htmlLinks__(self, htmlContent):
         soup = BeautifulSoup(htmlContent, 'lxml')
@@ -87,6 +82,11 @@ class ImageSpider(object):
             a = li.find('a')
             html_links.append(HOST_URL+a['href'])
         return html_links
+
+    # 获取所有图片的下载链接
+    def __get_imageLinks__(self, url):
+        html_content = self.__get_htmlContent__(url)
+        self.__parse_imageLinkAndNextPageUrl__(html_content)
 
     # 解析html网页内容以获取图片链接
     def __parse_imageLinkAndNextPageUrl__(self, htmlContent):
