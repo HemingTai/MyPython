@@ -3,10 +3,10 @@
 
 __author = 'Hem1ng'
 
-import requests, os, time, sys
+import time, sys
 from bs4 import BeautifulSoup
-from FurtherLearning.Utility import *
 from functools import partial
+from FurtherLearning.Utility import *
 from multiprocessing.pool import Pool
 
 
@@ -17,6 +17,7 @@ class VideoSpider(object):
     def  __init__(self):
         self.__videoLinks__ = []
         self.__downloadLinks__ = []
+        self.__saveLinks__ = []
 
     # 获取html页面内容
     def __get_htmlContent__(self, url):
@@ -34,7 +35,8 @@ class VideoSpider(object):
         except Exception:
             print('request error url:', url)
             # 保存数据至文件
-            self.__save_data__()
+            # self.__save_data__()
+            saveDataToDatabase(self.__saveLinks__)
 
     # 获取所有html页面链接
     def __get_htmlLinks__(self, url):
@@ -57,15 +59,13 @@ class VideoSpider(object):
             a = div.find('a')
             # 如果该链接是视频下载地址，则添加
             if a['href'] != 'http://jin.7557727.com:88/411316.html':
-                # item = '<p><a href="%s">%s</a></p>' % (ORIGINAL_URL + a['href'], a['title'])
-                # self.__videoLinks__.append(item)
                 self.__get_downloadLink__(ORIGINAL_URL + a['href'])
                 # return
         # 找到下一页的链接
         a_nextPage = soup.find('a', string='下一页')
         if a_nextPage.get('href', None) != None:
             nextPage_url = ORIGINAL_URL + a_nextPage['href']
-            if nextPage_url == 'http://www.42soso.com/diao/se57_62.html':
+            if nextPage_url == 'http://www.42soso.com/diao/se57_201.html':
                 return
             self.__get_videoLinks__(nextPage_url)
 
@@ -77,6 +77,7 @@ class VideoSpider(object):
         source = soup.find('source')
         self.__videoLinks__.append('<p><a href="%s">%s</a></p>' %(source['src'], div.string.strip()))
         self.__downloadLinks__.append(source['src'])
+        self.__saveLinks__.append({'title':div.string.strip(), 'url':source['src']})
 
     # 保存数据至文件
     def __save_data__(self):
@@ -99,16 +100,19 @@ class VideoSpider(object):
         print('开始解析原始网页...')
         html_links = self.__get_htmlLinks__(ORIGINAL_URL)
         print('获取视频下载链接...')
-        self.__get_videoLinks__('http://www.42soso.com/diao/se57_61.html') # html_links[9]
+        self.__get_videoLinks__('http://www.42soso.com/diao/se57_101.html') # html_links[9]
         print('获取视频下载链接完成...')
         time_end = time.time()
         print('共耗时', time_end - time_start)
-        self.__save_data__()
+        # self.__save_data__()
+        print('开始写入数据...')
+        saveDataToDatabase(self.__saveLinks__)
+        print('写入数据完成...')
         print('共耗时', time.time()-time_end)
-        print('开始下载视频...', time.time())
-        setFileDownloadPath(DOWNLOAD_PATH)
-        self.__download_video__()
-        print('下载视频结束...', time.time())
+        # print('开始下载视频...', time.time())
+        # setFileDownloadPath(DOWNLOAD_PATH)
+        # self.__download_video__()
+        # print('下载视频结束...', time.time())
 
 if __name__ == '__main__':
     # 设置系统递归深度为100万，由于在解析视频连接时会找到下一页，然后不停的递归调用继续解析视频链接，所以要设置一下
