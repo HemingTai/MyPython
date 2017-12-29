@@ -6,30 +6,31 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 
-import json, codecs, sys
+import json
+from .items import NewsItem
 
 class NewsPipeline(object):
 
     def __init__(self):
-        self.file = codecs.open('IT_News.json', 'wb', 'utf-8')
+        self.file = open("news.json", "w")
+
+    # 该方法在spider被开启时被调用
+    def open_spider(self, spider):
+        print('aaaaa')
 
     def process_item(self, item, spider):
-        line = 'the news list:\n'
-
-        for i in range(len(item['imgUrl'])):
-            news_imgUrl = {'news_imgUrl':item['imgUrl'][i]}
-            news_title = {'news_title':item['title'][i]}
-            news_time = {'news_time': item['time'][i]}
-            news_brief = {'news_brief': item['brief'][i]}
-            news_detailUrl = {'news_detailUrl': item['detailUrl'][i]}
-            line = line + json.dumps(news_imgUrl,ensure_ascii=False)
-            line = line + json.dumps(news_title, ensure_ascii=False)
-            line = line + json.dumps(news_time, ensure_ascii=False)
-            line = line + json.dumps(news_brief, ensure_ascii=False)
-            line = line + json.dumps(news_detailUrl, ensure_ascii=False)
-        line = line + '\n'
-
+        print('ccccc')
+        # for i in range(len(item['title'])):
+        #     newsItem = NewsItem()
+        #     newsItem['imgUrl'] = item['imgUrl'][i]
+        #     newsItem['title'] = item['title'][i]
+        #     newsItem['time'] = item['time'][i]
+        #     newsItem['brief'] = item['brief'][i]
+        #     newsItem['detailUrl'] = item['detailUrl'][i]
+        line = json.dumps(dict(item), ensure_ascii=False)+'\n'
         self.file.write(line)
 
-    def close_spider(self, spider):
+    # 该方法在spider被关闭时被调用
+    def colse_spider(self, spider):
+        print('ddddd')
         self.file.close()
