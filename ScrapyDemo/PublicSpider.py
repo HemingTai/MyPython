@@ -6,4 +6,5 @@ __author__ = 'Hem1ng'
 
 from scrapy import cmdline
 
-cmdline.execute('scrapy crawl ITNews'.split())
+# cmdline.execute('scrapy crawl ITNews'.split())
+cmdline.execute('scrapy crawl Video'.split())

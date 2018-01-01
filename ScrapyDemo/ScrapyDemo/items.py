@@ -16,3 +16,7 @@ class NewsItem(scrapy.Item):
     time      = scrapy.Field() # 时间
     brief     = scrapy.Field() # 摘要
     detailUrl = scrapy.Field() # 详情链接
+
+class VideoItem(scrapy.Item):
+    videoUrl   = scrapy.Field() # 视频链接
+    videoTitle = scrapy.Field() # 视频标题

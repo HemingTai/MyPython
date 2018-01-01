@@ -7,7 +7,7 @@
 
 
 import json
-from .items import NewsItem
+from .items import *
 
 class NewsPipeline(object):
 
@@ -33,4 +33,21 @@ class NewsPipeline(object):
     # 该方法在spider被关闭时被调用
     def colse_spider(self, spider):
         print('ddddd')
+        self.file.close()
+
+class VideoPipeline(object):
+
+    def __init__(self):
+        self.file = open("video.json", "w")
+
+    # 该方法在spider被开启时被调用
+    def open_spider(self, spider):
+        pass
+
+    def process_item(self, item, spider):
+        line = json.dumps(dict(item), ensure_ascii=False)+'\n'
+        self.file.write(line)
+
+    # 该方法在spider被关闭时被调用
+    def colse_spider(self, spider):
         self.file.close()

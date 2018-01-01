@@ -35,8 +35,8 @@ class VideoSpider(object):
         except Exception:
             print('request error url:', url)
             # 保存数据至文件
-            # self.__save_data__()
-            saveDataToDatabase(self.__saveLinks__)
+            self.__save_data__()
+            # saveDataToDatabase(self.__saveLinks__)
 
     # 获取所有html页面链接
     def __get_htmlLinks__(self, url):
@@ -58,14 +58,14 @@ class VideoSpider(object):
         for div in all_div:
             a = div.find('a')
             # 如果该链接是视频下载地址，则添加
-            if a['href'] != 'http://jin.7557727.com:88/411316.html':
+            if '/video/' in a['href']:
                 self.__get_downloadLink__(ORIGINAL_URL + a['href'])
                 # return
         # 找到下一页的链接
         a_nextPage = soup.find('a', string='下一页')
         if a_nextPage.get('href', None) != None:
             nextPage_url = ORIGINAL_URL + a_nextPage['href']
-            if nextPage_url == 'http://www.42soso.com/diao/se57_201.html':
+            if nextPage_url == 'http://www.42soso.com/diao/se57_5.html':
                 return
             self.__get_videoLinks__(nextPage_url)
 
@@ -75,7 +75,7 @@ class VideoSpider(object):
         soup = BeautifulSoup(html_content, 'lxml')
         div = soup.find('div', class_='player').find('div', class_='a1')
         source = soup.find('source')
-        self.__videoLinks__.append('<p><a href="%s">%s</a></p>' %(source['src'], div.string.strip()))
+        self.__videoLinks__.append('<p><a href="%s" target="_blank">%s</a></p>' %(source['src'], div.string.strip()))
         self.__downloadLinks__.append(source['src'])
         self.__saveLinks__.append({'title':div.string.strip(), 'url':source['src']})
 
@@ -100,19 +100,19 @@ class VideoSpider(object):
         print('开始解析原始网页...')
         html_links = self.__get_htmlLinks__(ORIGINAL_URL)
         print('获取视频下载链接...')
-        self.__get_videoLinks__('http://www.42soso.com/diao/se57_101.html') # html_links[9]
+        self.__get_videoLinks__('http://www.42soso.com/diao/se57_4.html') # html_links[9]
         print('获取视频下载链接完成...')
         time_end = time.time()
-        print('共耗时', time_end - time_start)
-        # self.__save_data__()
+        print('共耗时', '%.f' % (time_end - time_start))
+        self.__save_data__()
         print('开始写入数据...')
-        saveDataToDatabase(self.__saveLinks__)
+        # saveDataToDatabase(self.__saveLinks__)
         print('写入数据完成...')
-        print('共耗时', time.time()-time_end)
-        # print('开始下载视频...', time.time())
-        # setFileDownloadPath(DOWNLOAD_PATH)
-        # self.__download_video__()
-        # print('下载视频结束...', time.time())
+        print('共耗时', '%.f' % (time.time()-time_end))
+        print('开始下载视频...')
+        setFileDownloadPath(DOWNLOAD_PATH)
+        self.__download_video__()
+        print('下载视频结束...')
 
 if __name__ == '__main__':
     # 设置系统递归深度为100万，由于在解析视频连接时会找到下一页，然后不停的递归调用继续解析视频链接，所以要设置一下

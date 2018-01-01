@@ -53,17 +53,20 @@ def saveFile(path,data):
 
 # 下载视频
 def downloadVideo(url):
-    with closing(requests.get(url, stream=True)) as r:
-        video_name = os.path.basename(url)
-        chunk_size = 1024*1024
-        content_size = int(r.headers['content-length'])
-        totalCount = 0
-        with open(video_name, 'wb') as f:
-            for data in r.iter_content(chunk_size=chunk_size):
-                f.write(data)
-                totalCount += len(data)
-                currentCount = '%.4f' % (totalCount / content_size)
-                print('正在下载%.2f%%' % (float(currentCount)*100))
+    if isFileNeededDownload(url):
+        with closing(requests.get(url, stream=True)) as r:
+            video_name = os.path.basename(url)
+            chunk_size = 1024*1024
+            content_size = int(r.headers['content-length'])
+            totalCount = 0
+            with open(video_name, 'wb') as f:
+                for data in r.iter_content(chunk_size=chunk_size):
+                    f.write(data)
+                    totalCount += len(data)
+                    currentCount = '%.4f' % (totalCount / content_size)
+                    print('正在下载%.2f%%' % (float(currentCount)*100))
+    else:
+        print('视频已下载')
 
 # 保存数据至数据库
 def saveDataToDatabase(data):

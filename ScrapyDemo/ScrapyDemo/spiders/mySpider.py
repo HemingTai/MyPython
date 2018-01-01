@@ -6,7 +6,7 @@ __author__ = 'Hem1ng'
 
 
 import scrapy
-from ..items import NewsItem
+from ..items import *
 from bs4 import BeautifulSoup
 
 class NewsSpider(scrapy.Spider):
@@ -43,6 +43,25 @@ class NewsSpider(scrapy.Spider):
             item['brief']     = news_brief[i]
             item['detailUrl'] = news_detailUrl[i]
             yield item
+
+class VideoSpider(scrapy.Spider):
+
+    name = 'Video'
+    start_urls = ['http://www.42soso.com/diao/se57.html']
+
+    def parse(self, response):
+        sel = scrapy.Selector(response)
+        url_host = 'http://www.42soso.com'
+        video_url = sel.xpath('//div[@class="shadow"]/a/@href').extract()
+        video_title = sel.xpath('//div[@class="shadow"]/a/@title').extract()
+        for i in range(len(video_url)):
+            if '/video/' in video_url[i]:
+                item = VideoItem()
+                item['videoUrl'] = url_host+video_url[i]
+                item['videoTitle'] = video_title[i]
+                yield item
+            else:
+                video_title.pop(i)
 
 
 
