@@ -7,7 +7,9 @@
 
 
 import json
-from .items import *
+from scrapy.pipelines.images import ImagesPipeline
+from scrapy.exceptions import DropItem
+from scrapy import Request
 
 class NewsPipeline(object):
 
@@ -16,10 +18,9 @@ class NewsPipeline(object):
 
     # 该方法在spider被开启时被调用
     def open_spider(self, spider):
-        print('aaaaa')
+        pass
 
     def process_item(self, item, spider):
-        print('ccccc')
         # for i in range(len(item['title'])):
         #     newsItem = NewsItem()
         #     newsItem['imgUrl'] = item['imgUrl'][i]
@@ -30,10 +31,21 @@ class NewsPipeline(object):
         line = json.dumps(dict(item), ensure_ascii=False)+'\n'
         self.file.write(line)
 
-    # 该方法在spider被关闭时被调用
+    # 该方法在spider被关闭时被调用(？未发现被调用)
     def colse_spider(self, spider):
-        print('ddddd')
         self.file.close()
+
+class ImagePipeline(ImagesPipeline):
+
+    def get_media_requests(self, item, info):
+        yield Request(item['imageUrl'])
+
+    def item_completed(self, results, item, info):
+        image_path = [x['path'] for ok,x in results if ok]
+        if not image_path:
+            raise DropItem('图片下载失败 %s' % image_path)
+        else:
+            print('下载成功...')
 
 class VideoPipeline(object):
 

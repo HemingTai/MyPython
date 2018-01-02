@@ -20,3 +20,6 @@ class NewsItem(scrapy.Item):
 class VideoItem(scrapy.Item):
     videoUrl   = scrapy.Field() # 视频链接
     videoTitle = scrapy.Field() # 视频标题
+
+class ImageItem(scrapy.Item):
+    imageUrl   = scrapy.Field() # 图片链接

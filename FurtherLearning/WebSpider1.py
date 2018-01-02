@@ -192,15 +192,9 @@ class ReviewSpider(object):
         # r = session.get('https://www.douban.com/settings/',cookies=cookies)
         # 需要登录分两种情况：
         # 第一种手动登陆后从浏览器获取登陆后的cookie，再请求需要登录的页面
-        # 第二种
+        # 第二种通过用户名密码（甚至验证码）进行post请求
         r = requests.get('https://www.douban.com/settings/', cookies=cookies)
         print(r.content.decode('utf-8'))
-
-
-
-
-
-
 
     # 爬虫入口
     def start_spider(self):

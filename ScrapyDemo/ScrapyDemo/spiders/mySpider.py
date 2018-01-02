@@ -6,6 +6,9 @@ __author__ = 'Hem1ng'
 
 
 import scrapy
+from scrapy import Request
+from scrapy.linkextractors import LinkExtractor
+from scrapy.spiders import Rule,CrawlSpider
 from ..items import *
 from bs4 import BeautifulSoup
 
@@ -44,9 +47,49 @@ class NewsSpider(scrapy.Spider):
             item['detailUrl'] = news_detailUrl[i]
             yield item
 
+# class ImageSpider(scrapy.Spider):
+#
+#     name = 'Image'
+#     start_urls = ['http://desk.zol.com.cn/youxi/yingxionglianmeng/',
+#                   'http://desk.zol.com.cn/youxi/yingxionglianmeng/2.html']
+#
+#     def parse(self, response):
+#         sel = scrapy.Selector(response)
+#         url_host = 'http://desk.zol.com.cn'
+#         page_urls = sel.xpath('//li[@class="photo-list-padding"]/a/@href').extract()
+#         for url in page_urls:
+#             yield Request(url_host+url,callback=self.get_downloadLinkOfImage)
+#
+#     def get_downloadLinkOfImage(self, response):
+#         sel = scrapy.Selector(response)
+#         image_url = sel.xpath('//img[@id="bigImg"]/@src').extract()
+#         item = ImageItem()
+#         item['imageUrl'] = image_url[0]
+#         yield item
+#         next_url = sel.xpath('//a[@id="pageNext"]/@href').extract()
+#         url_host = 'http://desk.zol.com.cn'
+#         if next_url[0] != 'javascript:;':
+#             yield Request(url_host+next_url[0], callback=self.get_downloadLinkOfImage)
+
+class ImageSpider(CrawlSpider):
+
+    name = 'Image'
+    start_urls = ['https://movie.douban.com/photos/photo/2509298725']
+    rules = (Rule(LinkExtractor(allow=(r'https://movie.douban.com/photos/photo/\d+')), callback='parse',follow=True),)
+
+    def parse(self, response):
+        sel = scrapy.Selector(response)
+        image_url = sel.xpath('//div[@class="photo-wp"]/a[@class="mainphoto"]/img/@src').extract()
+        if len(image_url):
+            item = ImageItem()
+            item['imageUrl'] = image_url[0]
+            yield item
+
+
 class VideoSpider(scrapy.Spider):
 
     name = 'Video'
+
     start_urls = ['http://www.42soso.com/diao/se57.html']
 
     def parse(self, response):
@@ -62,6 +105,4 @@ class VideoSpider(scrapy.Spider):
                 yield item
             else:
                 video_title.pop(i)
-
-
 

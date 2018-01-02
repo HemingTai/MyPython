@@ -8,6 +8,7 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
+import os
 
 BOT_NAME = 'ScrapyDemo'
 
@@ -66,8 +67,14 @@ DEFAULT_REQUEST_HEADERS = {
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    # 'ScrapyDemo.pipelines.NewsPipeline': 300,
-   'ScrapyDemo.pipelines.VideoPipeline': 1
+   # 'ScrapyDemo.pipelines.VideoPipeline': 300,
+   'ScrapyDemo.pipelines.ImagePipeline': 300
 }
+
+# 图片下载路径
+IMAGES_STORE = os.path.join(os.path.expanduser(r'~/Downloads'), 'ImageTemp')
+# 图片过期时间
+IMAGEs_EXPIRES = 90
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
