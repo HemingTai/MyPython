@@ -74,6 +74,7 @@ class NewsSpider(scrapy.Spider):
 class ImageSpider(CrawlSpider):
 
     name = 'Image'
+    download_delay = 1
     start_urls = ['https://movie.douban.com/photos/photo/2509298725']
     rules = (Rule(LinkExtractor(allow=(r'https://movie.douban.com/photos/photo/\d+')), callback='parse',follow=True),)
 
