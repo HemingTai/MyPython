@@ -22,4 +22,7 @@ class VideoItem(scrapy.Item):
     videoTitle = scrapy.Field() # 视频标题
 
 class ImageItem(scrapy.Item):
-    imageUrl   = scrapy.Field() # 图片链接
+    imageUrl = scrapy.Field() # 图片链接
+
+class YSDItem(scrapy.Item):
+    goods = scrapy.Field() # 货物数量

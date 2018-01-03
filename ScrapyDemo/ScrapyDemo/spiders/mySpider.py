@@ -5,12 +5,12 @@
 __author__ = 'Hem1ng'
 
 
-import scrapy
-from scrapy import Request
-from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import Rule,CrawlSpider
+import scrapy, json, time
 from ..items import *
+from scrapy import Request
 from bs4 import BeautifulSoup
+from scrapy.spiders import Rule,CrawlSpider
+from scrapy.linkextractors import LinkExtractor
 
 class NewsSpider(scrapy.Spider):
 
@@ -50,6 +50,7 @@ class NewsSpider(scrapy.Spider):
 # class ImageSpider(scrapy.Spider):
 #
 #     name = 'Image'
+#     allowed_domains = ['zol.com.cn']
 #     start_urls = ['http://desk.zol.com.cn/youxi/yingxionglianmeng/',
 #                   'http://desk.zol.com.cn/youxi/yingxionglianmeng/2.html']
 #
@@ -75,22 +76,22 @@ class ImageSpider(CrawlSpider):
 
     name = 'Image'
     download_delay = 1
-    start_urls = ['https://movie.douban.com/photos/photo/2509298725']
-    rules = (Rule(LinkExtractor(allow=(r'https://movie.douban.com/photos/photo/\d+')), callback='parse',follow=True),)
+    allowed_domains = ['douban.com']
+    start_urls = ['https://movie.douban.com/photos/photo/2509298725/']
+    rules = (Rule(LinkExtractor(allow=(r'https://movie.douban.com/photos/photo/\d+/#title-anchor')), callback='parse',follow=True),)
 
     def parse(self, response):
         sel = scrapy.Selector(response)
         image_url = sel.xpath('//div[@class="photo-wp"]/a[@class="mainphoto"]/img/@src').extract()
         if len(image_url):
-            item = ImageItem()
-            item['imageUrl'] = image_url[0]
-            yield item
-
+            for url in image_url:
+                item = ImageItem()
+                item['imageUrl'] = url
+                yield item
 
 class VideoSpider(scrapy.Spider):
 
     name = 'Video'
-
     start_urls = ['http://www.42soso.com/diao/se57.html']
 
     def parse(self, response):
@@ -106,4 +107,33 @@ class VideoSpider(scrapy.Spider):
                 yield item
             else:
                 video_title.pop(i)
+
+class YSDSpider(scrapy.Spider):
+
+    name = 'YSD'
+    allowed_domains = ['yishoudan.com']
+    # 获得全部商品的url，json=1返回json格式，version=2返回记录总数
+    start_urls = ['http://www.yishoudan.com/all/index/pname/page/aname/page/p/1.html']
+
+    def parse(self, response):
+        sel = scrapy.Selector(response)
+        all_page = sel.xpath('//div[@class="paging"]/a[@class="selectp"]/@p').extract()
+        for i in range(max(map(int, all_page))):
+            url = 'http://www.yishoudan.com/all/index/pname/page/aname/page/p/%s?json=1&version=2' % (i+1)
+            yield Request(url, callback=self.parse_data)
+
+    def parse_data(self, response):
+        a = response.text
+        if 'null' in response.text:
+            a = a.replace('null', '"null"')
+        # eval()或者exec()是将字符串转换成dict
+        data = eval(a)
+        item = YSDItem()
+        item['goods'] = data['items']
+        yield item
+
+
+
+
+
 

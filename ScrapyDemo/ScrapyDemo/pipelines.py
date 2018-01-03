@@ -21,13 +21,6 @@ class NewsPipeline(object):
         pass
 
     def process_item(self, item, spider):
-        # for i in range(len(item['title'])):
-        #     newsItem = NewsItem()
-        #     newsItem['imgUrl'] = item['imgUrl'][i]
-        #     newsItem['title'] = item['title'][i]
-        #     newsItem['time'] = item['time'][i]
-        #     newsItem['brief'] = item['brief'][i]
-        #     newsItem['detailUrl'] = item['detailUrl'][i]
         line = json.dumps(dict(item), ensure_ascii=False)+'\n'
         self.file.write(line)
 
@@ -62,4 +55,25 @@ class VideoPipeline(object):
 
     # 该方法在spider被关闭时被调用
     def colse_spider(self, spider):
+        self.file.close()
+
+class YSDPipeline(object):
+
+    def __init__(self):
+        self.file = open("goods.json", "w+")
+
+    # 该方法在spider被开启时被调用
+    def open_spider(self, spider):
+        pass
+
+    def process_item(self, item, spider):
+        line = ''
+        goods = item['goods']
+        for i in range(len(goods)):
+            line = line+json.dumps(goods[i])+'\n'
+        self.file.write(line)
+
+    # 该方法在spider被关闭时被调用(？未发现被调用)
+    def colse_spider(self, spider):
+        print('ccccccccccccc')
         self.file.close()
