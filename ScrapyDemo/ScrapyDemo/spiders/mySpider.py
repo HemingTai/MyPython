@@ -77,10 +77,17 @@ class ImageSpider(CrawlSpider):
     name = 'Image'
     download_delay = 1
     allowed_domains = ['douban.com']
-    start_urls = ['https://movie.douban.com/photos/photo/2509298725/']
-    rules = (Rule(LinkExtractor(allow=(r'https://movie.douban.com/photos/photo/\d+/#title-anchor')), callback='parse',follow=True),)
+    start_urls = ['https://movie.douban.com/photos/photo/2509468063/#title-anchor']
+    rules = (Rule(LinkExtractor(allow=(r'https://movie\.douban\.com/photos/photo/(\d+)/#title-anchor',),), callback='parse_next',follow=True),)
 
-    def parse(self, response):
+    # 批量爬取网页时使用CrawlSpider,此时CrawlSpider已经重写了parse方法，所以重新写一个解析方法parse_next，不要与单页面爬取时混淆
+    # 程序自动使用start_urls构造Request并发送请求，然后调用parse函数对其进行解析，在这个解析过程中使用rules中的规则从html（或xml）文本中提取匹配的链接，
+    # 通过这个链接再次生成Request，如此不断循环，直到返回的文本中再也没有匹配的链接，或调度器中的Request对象用尽，程序才停止。
+    # rules中的规则如果callback没有指定，则使用默认的parse函数进行解析，如果指定了，那么使用自定义的解析函数。
+    # 如果起始的url解析方式有所不同，那么可以重写CrawlSpider中的另一个函数parse_start_url(self, response)
+    # 用来解析第一个url返回的Response，但这不是必须的。
+    # Rule对象的follow参数的作用是：指定了根据该规则从response提取的链接是否需要跟进
+    def parse_next(self, response):
         sel = scrapy.Selector(response)
         image_url = sel.xpath('//div[@class="photo-wp"]/a[@class="mainphoto"]/img/@src').extract()
         if len(image_url):
@@ -89,24 +96,24 @@ class ImageSpider(CrawlSpider):
                 item['imageUrl'] = url
                 yield item
 
-class VideoSpider(scrapy.Spider):
+class VideoSpider(CrawlSpider):
 
     name = 'Video'
     start_urls = ['http://www.42soso.com/diao/se57.html']
+    # 如果多个rule匹配了相同的链接，则根据他们在本属性中被定义的顺序，第一个会被使用。
+    rules = (
+                Rule(LinkExtractor(allow=(r'/video/\w+',),), callback='parse_item', follow=True),
+                Rule(LinkExtractor(allow=(r'/diao/se57_\d+.html',),), callback='parse_item', follow=True)
+             )
 
-    def parse(self, response):
+    def parse_item(self, response):
         sel = scrapy.Selector(response)
-        url_host = 'http://www.42soso.com'
-        video_url = sel.xpath('//div[@class="shadow"]/a/@href').extract()
-        video_title = sel.xpath('//div[@class="shadow"]/a/@title').extract()
-        for i in range(len(video_url)):
-            if '/video/' in video_url[i]:
+        video_url = sel.xpath('//video[@id="video-js-id"]/source/@src').extract()
+        if len(video_url):
+            for url in video_url:
                 item = VideoItem()
-                item['videoUrl'] = url_host+video_url[i]
-                item['videoTitle'] = video_title[i]
+                item['videoUrl'] = url
                 yield item
-            else:
-                video_title.pop(i)
 
 class YSDSpider(scrapy.Spider):
 

@@ -67,15 +67,23 @@ DEFAULT_REQUEST_HEADERS = {
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    # 'ScrapyDemo.pipelines.NewsPipeline': 300,
-   # 'ScrapyDemo.pipelines.VideoPipeline': 300,
+   'ScrapyDemo.pipelines.VideoPipeline': 300,
    # 'ScrapyDemo.pipelines.ImagePipeline': 300,
-   'ScrapyDemo.pipelines.YSDPipeline': 300
+   # 'ScrapyDemo.pipelines.YSDPipeline': 300
 }
 
+# 文件下载路径
+FILES_STORE = os.path.join(os.path.expanduser(r'~/Downloads'), 'VideoTemp')
+# 图片过期时间
+FILES_EXPIRES = 90
 # 图片下载路径
 IMAGES_STORE = os.path.join(os.path.expanduser(r'~/Downloads'), 'ImageTemp')
 # 图片过期时间
 IMAGEs_EXPIRES = 90
+# 下载大小超过默认值32MB就会警告，设置为0表示不起用警告
+DOWNLOAD_WARNSIZE = 0
+# 设置下载超时时间，默认180秒
+DOWNLOAD_TIMEOUT = 900
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
