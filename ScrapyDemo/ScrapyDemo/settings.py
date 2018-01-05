@@ -67,8 +67,8 @@ DEFAULT_REQUEST_HEADERS = {
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    # 'ScrapyDemo.pipelines.NewsPipeline': 300,
-   'ScrapyDemo.pipelines.VideoPipeline': 300,
-   # 'ScrapyDemo.pipelines.ImagePipeline': 300,
+   # 'ScrapyDemo.pipelines.VideoPipeline': 300,
+   'ScrapyDemo.pipelines.ImagePipeline': 300,
    # 'ScrapyDemo.pipelines.YSDPipeline': 300
 }
 

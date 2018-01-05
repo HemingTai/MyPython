@@ -9,10 +9,10 @@ import scrapy, json, time
 from ..items import *
 from scrapy import Request
 from bs4 import BeautifulSoup
-from scrapy.spiders import Rule,CrawlSpider
+from scrapy.spiders import Rule,CrawlSpider, Spider
 from scrapy.linkextractors import LinkExtractor
 
-class NewsSpider(scrapy.Spider):
+class NewsSpider(Spider):
 
     name = 'ITNews'
     allowed_domains = ['ithome.com']
@@ -115,7 +115,7 @@ class VideoSpider(CrawlSpider):
                 item['videoUrl'] = url
                 yield item
 
-class YSDSpider(scrapy.Spider):
+class YSDSpider(Spider):
 
     name = 'YSD'
     allowed_domains = ['yishoudan.com']
@@ -139,6 +139,23 @@ class YSDSpider(scrapy.Spider):
         item['goods'] = data['items']
         yield item
 
+class HImageSpider(CrawlSpider):
+
+    name = 'HImage'
+    allowed_domains = ['42soso.com', '71kvkv.com']
+    start_urls = ['http://www.42soso.com/tu/1.html']
+    rules = (
+                Rule(LinkExtractor(allow=(r'/news/class/\d+.html',),), callback='parse_next',follow=True),
+                Rule(LinkExtractor(allow=(r'/news/other/10_\d+.html',),), callback='parse_next', follow=True),
+            )
+
+    def parse_next(self, response):
+        sel = scrapy.Selector(response)
+        image_urls = sel.xpath('//img/@src').extract()
+        for url in image_urls:
+            item = ImageItem()
+            item['imageUrl'] = url
+            yield item
 
 
 

@@ -36,7 +36,7 @@ class ImagePipeline(ImagesPipeline):
     def item_completed(self, results, item, info):
         image_path = [x['path'] for ok,x in results if ok]
         if not image_path:
-            raise DropItem('图片下载失败 %s' % image_path)
+            raise DropItem('下载失败 %s' % image_path)
         else:
             print('下载成功...')
 
@@ -45,12 +45,12 @@ class VideoPipeline(FilesPipeline):
     def get_media_requests(self, item, info):
         yield Request(item['videoUrl'])
 
+    # results是一个list,里面只有一个元素是tuple类型，tuple里面有两个值，第一个是布尔值，第二个是dict
+    # dict里面有三个键值对,一个是url，一个是path，一个是checksum
     def item_completed(self, results, item, info):
-        print(results)
-        print(info)
         video_path = [x['path'] for ok,x in results if ok]
         if not video_path:
-            raise DropItem('视频下载失败 %s' % video_path)
+            raise DropItem('下载失败 %s' % video_path)
         else:
             print('下载成功...')
 

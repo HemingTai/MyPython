@@ -137,7 +137,7 @@ class ReviewSpider(object):
             'source': 'main',
             'redir': 'https://movie.douban.com/subject/26322642/discussion/?sort_by=vote',
             'form_email': '964085993@qq.com',
-            'form_password': 'daihuiming112911',
+            'form_password': '***替换密码***',
             'captcha-solution': 'regret',
             'captcha-id': '5KKmZCLHbNrys9v1ZzydQRNa:en',
             'remember':'on',
