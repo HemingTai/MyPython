@@ -17,12 +17,12 @@ class NewsItem(scrapy.Item):
     brief     = scrapy.Field() # 摘要
     detailUrl = scrapy.Field() # 详情链接
 
+class ImageItem(scrapy.Item):
+    imageUrl = scrapy.Field() # 图片链接
+
 class VideoItem(scrapy.Item):
     videoUrl   = scrapy.Field() # 视频链接
     videoTitle = scrapy.Field() # 视频标题
-
-class ImageItem(scrapy.Item):
-    imageUrl = scrapy.Field() # 图片链接
 
 class YSDItem(scrapy.Item):
     goods = scrapy.Field() # 货物数量

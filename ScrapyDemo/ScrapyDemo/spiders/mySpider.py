@@ -5,7 +5,6 @@
 __author__ = 'Hem1ng'
 
 
-import scrapy, json, time
 from ..items import *
 from scrapy import Request
 from bs4 import BeautifulSoup
@@ -47,30 +46,30 @@ class NewsSpider(Spider):
             item['detailUrl'] = news_detailUrl[i]
             yield item
 
-# class ImageSpider(scrapy.Spider):
-#
-#     name = 'Image'
-#     allowed_domains = ['zol.com.cn']
-#     start_urls = ['http://desk.zol.com.cn/youxi/yingxionglianmeng/',
-#                   'http://desk.zol.com.cn/youxi/yingxionglianmeng/2.html']
-#
-#     def parse(self, response):
-#         sel = scrapy.Selector(response)
-#         url_host = 'http://desk.zol.com.cn'
-#         page_urls = sel.xpath('//li[@class="photo-list-padding"]/a/@href').extract()
-#         for url in page_urls:
-#             yield Request(url_host+url,callback=self.get_downloadLinkOfImage)
-#
-#     def get_downloadLinkOfImage(self, response):
-#         sel = scrapy.Selector(response)
-#         image_url = sel.xpath('//img[@id="bigImg"]/@src').extract()
-#         item = ImageItem()
-#         item['imageUrl'] = image_url[0]
-#         yield item
-#         next_url = sel.xpath('//a[@id="pageNext"]/@href').extract()
-#         url_host = 'http://desk.zol.com.cn'
-#         if next_url[0] != 'javascript:;':
-#             yield Request(url_host+next_url[0], callback=self.get_downloadLinkOfImage)
+class BZImageSpider(scrapy.Spider):
+
+    name = 'Image'
+    allowed_domains = ['zol.com.cn']
+    start_urls = ['http://desk.zol.com.cn/youxi/yingxionglianmeng/',
+                  'http://desk.zol.com.cn/youxi/yingxionglianmeng/2.html']
+
+    def parse(self, response):
+        sel = scrapy.Selector(response)
+        url_host = 'http://desk.zol.com.cn'
+        page_urls = sel.xpath('//li[@class="photo-list-padding"]/a/@href').extract()
+        for url in page_urls:
+            yield Request(url_host+url,callback=self.get_downloadLinkOfImage)
+
+    def get_downloadLinkOfImage(self, response):
+        sel = scrapy.Selector(response)
+        image_url = sel.xpath('//img[@id="bigImg"]/@src').extract()
+        item = ImageItem()
+        item['imageUrl'] = image_url[0]
+        yield item
+        next_url = sel.xpath('//a[@id="pageNext"]/@href').extract()
+        url_host = 'http://desk.zol.com.cn'
+        if next_url[0] != 'javascript:;':
+            yield Request(url_host+next_url[0], callback=self.get_downloadLinkOfImage)
 
 class ImageSpider(CrawlSpider):
 
@@ -95,6 +94,24 @@ class ImageSpider(CrawlSpider):
                 item = ImageItem()
                 item['imageUrl'] = url
                 yield item
+
+class HImageSpider(CrawlSpider):
+
+    name = 'HImage'
+    allowed_domains = ['42soso.com', '71kvkv.com']
+    start_urls = ['http://www.42soso.com/tu/1.html']
+    rules = (
+                Rule(LinkExtractor(allow=(r'/news/class/\d+.html',),), callback='parse_next',follow=True),
+                Rule(LinkExtractor(allow=(r'/news/other/10_\d+.html',),), callback='parse_next', follow=True),
+            )
+
+    def parse_next(self, response):
+        sel = scrapy.Selector(response)
+        image_urls = sel.xpath('//img/@src').extract()
+        for url in image_urls:
+            item = ImageItem()
+            item['imageUrl'] = url
+            yield item
 
 class VideoSpider(CrawlSpider):
 
@@ -139,23 +156,7 @@ class YSDSpider(Spider):
         item['goods'] = data['items']
         yield item
 
-class HImageSpider(CrawlSpider):
 
-    name = 'HImage'
-    allowed_domains = ['42soso.com', '71kvkv.com']
-    start_urls = ['http://www.42soso.com/tu/1.html']
-    rules = (
-                Rule(LinkExtractor(allow=(r'/news/class/\d+.html',),), callback='parse_next',follow=True),
-                Rule(LinkExtractor(allow=(r'/news/other/10_\d+.html',),), callback='parse_next', follow=True),
-            )
-
-    def parse_next(self, response):
-        sel = scrapy.Selector(response)
-        image_urls = sel.xpath('//img/@src').extract()
-        for url in image_urls:
-            item = ImageItem()
-            item['imageUrl'] = url
-            yield item
 
 
 

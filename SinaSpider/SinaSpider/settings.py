@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Scrapy settings for ScrapyDemo project
+# Scrapy settings for SinaSpider project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -8,16 +8,15 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
-import os
 
-BOT_NAME = 'ScrapyDemo'
+BOT_NAME = 'SinaSpider'
 
-SPIDER_MODULES = ['ScrapyDemo.spiders']
-NEWSPIDER_MODULE = 'ScrapyDemo.spiders'
+SPIDER_MODULES = ['SinaSpider.spiders']
+NEWSPIDER_MODULE = 'SinaSpider.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36'
+#USER_AGENT = 'SinaSpider (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -42,19 +41,20 @@ ROBOTSTXT_OBEY = False
 # Override the default request headers:
 DEFAULT_REQUEST_HEADERS = {
   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-  'Accept-Language': 'en',
+  'Accept-Language': 'zh-CN,zh;q=0.9',
+  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36'
 }
 
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    'ScrapyDemo.middlewares.ScrapydemoSpiderMiddleware': 543,
+#    'SinaSpider.middlewares.SinaspiderSpiderMiddleware': 543,
 #}
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #DOWNLOADER_MIDDLEWARES = {
-#    'ScrapyDemo.middlewares.MyCustomDownloaderMiddleware': 543,
+#    'SinaSpider.middlewares.MyCustomDownloaderMiddleware': 543,
 #}
 
 # Enable or disable extensions
@@ -66,26 +66,8 @@ DEFAULT_REQUEST_HEADERS = {
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'ScrapyDemo.pipelines.NewsPipeline': 300,
-   # 'ScrapyDemo.pipelines.VideoPipeline': 300,
-   # 'ScrapyDemo.pipelines.ImagePipeline': 300,
-   # 'ScrapyDemo.pipelines.YSDPipeline': 300
+   'SinaSpider.pipelines.SinaspiderPipeline': 300,
 }
-
-# 文件下载路径
-FILES_STORE = os.path.join(os.path.expanduser(r'~/Downloads'), 'VideoTemp')
-# 图片过期时间
-FILES_EXPIRES = 90
-# 图片下载路径
-IMAGES_STORE = os.path.join(os.path.expanduser(r'~/Downloads'), 'ImageTemp')
-# 图片过期时间
-IMAGEs_EXPIRES = 90
-# 下载大小超过默认值32MB就会警告，设置为0表示不起用警告
-DOWNLOAD_WARNSIZE = 0
-# 设置下载超时时间，默认180秒
-DOWNLOAD_TIMEOUT = 900
-# 只显示debug日志
-LOG_LEVEL= 'DEBUG'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
@@ -102,8 +84,8 @@ LOG_LEVEL= 'DEBUG'
 
 # Enable and configure HTTP caching (disabled by default)
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html#httpcache-middleware-settings
-# HTTPCACHE_ENABLED = True
-# HTTPCACHE_EXPIRATION_SECS = 60
-# HTTPCACHE_DIR = 'httpcache'
-# HTTPCACHE_IGNORE_HTTP_CODES = []
-# HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+#HTTPCACHE_ENABLED = True
+#HTTPCACHE_EXPIRATION_SECS = 0
+#HTTPCACHE_DIR = 'httpcache'
+#HTTPCACHE_IGNORE_HTTP_CODES = []
+#HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'

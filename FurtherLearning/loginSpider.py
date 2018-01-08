@@ -58,10 +58,9 @@ class DoubanSpider(object):
     def __login__(self):
         session = requests.session()
         resp = session.post(self.__url__, data=self.__data__, headers=self.__headers__)
-        print(session.headers)
         print(session.cookies)
         if resp.status_code == 200:
-            result = session.get('https://www.douban.com/settings/')
+            result = session.get('https://www.douban.com/people/59490556/')
             print(result.content.decode('utf-8'))
 
     def start_crawl(self):
