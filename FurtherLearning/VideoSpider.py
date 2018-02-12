@@ -1,7 +1,7 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author = 'Hem1ng'
+__author__ = 'Hem1ng'
 
 import time, sys
 from bs4 import BeautifulSoup
