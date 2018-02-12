@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from functools import partial
 from FurtherLearning.Utility import *
 from multiprocessing.pool import Pool
+from selenium import webdriver
 
 
 ORIGINAL_URL = 'http://www.42soso.com'

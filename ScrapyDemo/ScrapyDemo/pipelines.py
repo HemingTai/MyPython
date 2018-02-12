@@ -43,6 +43,7 @@ class ImagePipeline(ImagesPipeline):
 class VideoPipeline(FilesPipeline):
 
     def get_media_requests(self, item, info):
+        print('开始下载...')
         yield Request(item['videoUrl'])
 
     # results是一个list,里面只有一个元素是tuple类型，tuple里面有两个值，第一个是布尔值，第二个是dict

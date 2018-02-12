@@ -5,6 +5,7 @@
 __author__ = 'Hem1ng'
 
 
+import os
 from ..items import *
 from scrapy import Request
 from bs4 import BeautifulSoup
@@ -46,9 +47,9 @@ class NewsSpider(Spider):
             item['detailUrl'] = news_detailUrl[i]
             yield item
 
-class BZImageSpider(scrapy.Spider):
+class BZImageSpider(Spider):
 
-    name = 'Image'
+    name = 'BZImage'
     allowed_domains = ['zol.com.cn']
     start_urls = ['http://desk.zol.com.cn/youxi/yingxionglianmeng/',
                   'http://desk.zol.com.cn/youxi/yingxionglianmeng/2.html']
@@ -126,6 +127,7 @@ class VideoSpider(CrawlSpider):
     def parse_item(self, response):
         sel = scrapy.Selector(response)
         video_url = sel.xpath('//video[@id="video-js-id"]/source/@src').extract()
+        print(video_url)
         if len(video_url):
             for url in video_url:
                 item = VideoItem()
@@ -155,6 +157,60 @@ class YSDSpider(Spider):
         item = YSDItem()
         item['goods'] = data['items']
         yield item
+
+class NewVideoSpider(Spider):
+
+    name = 'NewVideoSpider'
+    allowed_domains = ['27ckck.com']
+    start_urls = ['https://www.27ckck.com/html/vodlist/tp/4.html']
+
+    def __init__(self):
+        Spider.__init__(self)
+        self.__video_links__ = []
+        self.__video_count__ = None
+
+    def parse(self, response):
+        global video_links
+        sel = scrapy.Selector(response)
+        all_urls = sel.xpath('//div[@class="indexvod"]/ul/li/h3/a/@href').extract()
+        all_titles = sel.xpath('//div[@class="indexvod"]/ul/li/h3/a/@title').extract()
+        for i in range(len(all_urls)):
+            item = VideoItem()
+            item['videoUrl'] = 'https://www.27ckck.com'+all_urls[i]
+            item['videoTitle'] = all_titles[i]
+            self.save_toList(item)
+        all_page = sel.xpath('//div[@class="left"]/strong/text()').extract()
+        total_page = int(all_page[2])
+        self.__video_count__ = int(all_page[0])
+        for i in range(total_page):
+            if i == 0:
+                continue
+            url = 'https://www.27ckck.com/html/vodlist/tp/4_%s.json' % (i+1)
+            yield Request(url, callback=self.parse_data)
+
+    def parse_data(self, response):
+        resp = eval(response.text)
+        all_item = resp['list']
+        for i in range(len(all_item)):
+            dic = all_item[i]
+            item = VideoItem()
+            item['videoUrl'] = 'https://www.27ckck.com' + dic['playurl'].replace("\\",'')
+            item['videoTitle'] = dic['s_name']
+            self.save_toList(item)
+            if len(self.__video_links__) == self.__video_count__:
+                self.save_toHtml()
+
+    def save_toList(self, item):
+        self.__video_links__.append('<p><a href="%s&j=1&hd=1" target="_blank">%s</a></p>' % (item['videoUrl'], item['videoTitle']))
+
+    def save_toHtml(self):
+        print('开始写入文件...')
+        data = '<!DOCTYPE html>\n<html lang="en">\n<head>\n\t<meta charset="UTF-8">\n\t<title>Videos</title>\n</head>\n<body>\n\t' + '\n\t'.join(
+                self.__video_links__) + '\n</body>\n</html>'
+        # data写入文件如果是文本必须是str,不能是list，dict
+        with open(os.path.join(os.path.expanduser(r'~/Downloads'), 'Temp.html'), 'w') as f:
+            f.write(data)
+        print('写入文件完成...')
 
 
 
