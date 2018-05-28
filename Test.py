@@ -49,7 +49,7 @@ print(workmate)
 print(len(workmate))
 print(workmate[0])
 print(workmate[2])
-# -1表示直接去数组末尾的数据
+# -1表示直接取数组末尾的数据
 print(workmate[-1])
 
 # append是在数组末尾增加，而insert可以插入到指定位置，pop(i)是删除数组指定位置元素,i不赋值则默认删除末尾元素
@@ -100,6 +100,7 @@ else:
 
 weight = 80.5
 height = 1.75
+# pow(x, y)返回x^y次方
 p = weight / pow(height, 2)
 if p < 18.5:
     print('过轻')
