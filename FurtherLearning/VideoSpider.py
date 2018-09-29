@@ -3,119 +3,92 @@
 
 __author__ = 'Hem1ng'
 
-import time, sys
+import time, sys, logging
 from bs4 import BeautifulSoup
 from functools import partial
 from FurtherLearning.Utility import *
 from multiprocessing.pool import Pool
-from selenium import webdriver
 
 
-ORIGINAL_URL = 'http://www.42soso.com'
+ORIGINAL_URL = 'http://www.slb44.com/categories/'
 
 class VideoSpider(object):
 
     def  __init__(self):
+        self.__categoriesLinks__ = []
+        self.__htmlLinks__ = []
         self.__videoLinks__ = []
-        self.__downloadLinks__ = []
-        self.__saveLinks__ = []
+        self.__pages__ = 0
 
     # 获取html页面内容
     def __get_htmlContent__(self, url):
-        print(url)
         try:
             resp = requests.get(url)
             if resp.status_code == 200:
                 try:
-                    content = resp.content.decode('gbk', errors='ignore')
+                    content = resp.content.decode('utf-8', errors='ignore')
                 except Exception:
-                    print('decode error url:',url)
-                    # 防止字符超出gbk编码，所以选用gb18030并忽略解码过程中的错误
-                    content = resp.content.decode('gb18030', errors='ignore')
-                return content
+                    logging.error('decode error url:',url)
+                return BeautifulSoup(content, 'lxml')
         except Exception:
-            print('request error url:', url)
-            # 保存数据至文件
-            self.__save_data__()
-            # saveDataToDatabase(self.__saveLinks__)
+            logging.error('request error url:', url)
 
-    # 获取所有html页面链接
-    def __get_htmlLinks__(self, url):
-        html_content = self.__get_htmlContent__(url)
-        soup = BeautifulSoup(html_content, 'lxml')
-        all_div = soup.find_all('div', class_='buttons2')
-        html_links = []
-        for div in all_div:
-            all_a = div.find_all('a')
-            for a in all_a:
-                html_links.append(ORIGINAL_URL+a['href'])
-        return html_links
+    # 获取所有目录链接
+    def __get_categoriesLinks__(self, url):
+        logging.info('开始获取所有分类链接')
+        soup = self.__get_htmlContent__(url)
+        a_all = soup.find_all('a', class_='item')
+        for a in a_all:
+            self.__categoriesLinks__.append({a['title']: a['href']})
+        logging.info('获取所有分类链接完成')
+        self.__get_htmlLinks__()
+
+    # 获取当前分类下所有页面链接
+    def __get_htmlLinks__(self):
+        for dic in self.__categoriesLinks__:
+            for title, url in dic.items():
+                logging.info('开始获取{title}分类下所有页面链接'.format(title=title))
+                soup = self.__get_htmlContent__(url)
+                li_last = soup.find('li', class_='last')
+                if not li_last is None:
+                    temp = li_last.find('a')['data-parameters']
+                    self.__pages__ = int(temp[23:])
+                    for page in range(1, self.__pages__ + 1):
+                        self.__htmlLinks__.append({title: url+str(page)})
+                else:
+                    self.__pages__ = 1
+                    self.__htmlLinks__.append({title: url})
+                logging.info('获取{title}分类下所有页面链接完成，总页数为：{pages}'.format(title=title, pages=self.__pages__))
+        self.__get_videoLinks__()
 
     # 获取所有video链接
-    def __get_videoLinks__(self, url):
-        html_content = self.__get_htmlContent__(url)
-        soup = BeautifulSoup(html_content, 'lxml')
-        all_div = soup.find_all('div', class_='shadow')
-        for div in all_div:
-            a = div.find('a')
-            # 如果该链接是视频下载地址，则添加
-            if '/video/' in a['href']:
-                self.__get_downloadLink__(ORIGINAL_URL + a['href'])
-                # return
-        # 找到下一页的链接
-        a_nextPage = soup.find('a', string='下一页')
-        if a_nextPage.get('href', None) != None:
-            nextPage_url = ORIGINAL_URL + a_nextPage['href']
-            if nextPage_url == 'http://www.42soso.com/diao/se57_5.html':
-                return
-            self.__get_videoLinks__(nextPage_url)
-
-    # 获取视频下载链接
-    def __get_downloadLink__(self, url):
-        html_content = self.__get_htmlContent__(url)
-        soup = BeautifulSoup(html_content, 'lxml')
-        div = soup.find('div', class_='player').find('div', class_='a1')
-        source = soup.find('source')
-        self.__videoLinks__.append('<p><a href="%s" target="_blank">%s</a></p>' %(source['src'], div.string.strip()))
-        self.__downloadLinks__.append(source['src'])
-        self.__saveLinks__.append({'title':div.string.strip(), 'url':source['src']})
-
-    # 保存数据至文件
-    def __save_data__(self):
-        print('开始写入文件...')
-        if len(self.__videoLinks__):
-            data = '<!DOCTYPE html>\n<html lang="en">\n<head>\n\t<meta charset="UTF-8">\n\t<title>Videos</title>\n</head>\n<body>\n\t' + '\n\t'.join(self.__videoLinks__) + '\n</body>\n</html>'
-            # data写入文件如果是文本必须是str,不能是list，dict
-            saveFile(SAVE_PATH, data)
-        print('写入文件完成...')
-
-    # 下载视频
-    def __download_video__(self):
-        download = partial(downloadVideo)
-        with Pool(2) as p:
-            p.map(download, self.__downloadLinks__)
+    def __get_videoLinks__(self):
+        logging.info('开始解析视频播放地址...')
+        for dic in self.__htmlLinks__:
+            for title, url in dic.items():
+                soup = self.__get_htmlContent__(url)
+                all_div = soup.find_all('div', class_='item')
+                for div in all_div:
+                    a = div.find('a')
+                    self.__videoLinks__.append({a['title']: a['href']})
+        logging.info('解析视频播放地址结束')
+        logging.info('开始写入数据库...')
+        saveVideoDataToDatabase(self.__videoLinks__)
+        logging.info('写入数据库完成')
 
     # 爬虫开始爬取
     def start_spider(self):
+        logging.info('爬虫开启')
         time_start = time.time()
-        print('开始解析原始网页...')
-        html_links = self.__get_htmlLinks__(ORIGINAL_URL)
-        print('获取视频下载链接...')
-        self.__get_videoLinks__('http://www.42soso.com/diao/se57_4.html') # html_links[9]
-        print('获取视频下载链接完成...')
+        logging.info('开始解析网页')
+        self.__get_categoriesLinks__(ORIGINAL_URL)
+        logging.info('解析网页完成')
         time_end = time.time()
-        print('共耗时', '%.f' % (time_end - time_start))
-        self.__save_data__()
-        print('开始写入数据...')
-        # saveDataToDatabase(self.__saveLinks__)
-        print('写入数据完成...')
-        print('共耗时', '%.f' % (time.time()-time_end))
-        print('开始下载视频...')
-        setFileDownloadPath(DOWNLOAD_PATH)
-        self.__download_video__()
-        print('下载视频结束...')
+        logging.info('共耗时{time}s'.format(time=time_end-time_start))
+        logging.info('爬虫结束')
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     # 设置系统递归深度为100万，由于在解析视频连接时会找到下一页，然后不停的递归调用继续解析视频链接，所以要设置一下
     sys.setrecursionlimit(1000000)
     videoSpider = VideoSpider()

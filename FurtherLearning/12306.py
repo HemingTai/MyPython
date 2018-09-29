@@ -161,13 +161,13 @@ def getSeatTicketList(*, date, duration, onStation, offStation, ticketType='ADUL
     return seatTicketList
 
 if __name__ == '__main__':
-    date = '2017-12-14'
+    date = '2018-09-20'
     departure = '上海虹桥'
-    destination = '苏州'
+    destination = '南昌西'
     departure_on = '上海虹桥'
-    destination_off = '苏州'
+    destination_off = '南昌西'
     ticketType = '成人票'
-    duration = 120
+    duration = 180
     # 先获取所有站点code
     getAllStationCode()
     # 获取筛选出发站和到达站后的车次信息

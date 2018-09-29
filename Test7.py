@@ -4,19 +4,28 @@
 def consumer():
     r = ''
     while True:
+        print('xxxxxxxxxxx')
         n = yield r
+        print('yyyyyyyyyyy')
+        print('nnnnnnnnnnn:'+ str(n))
         if not n:
+            print('zzzzzzzzzzz')
             return
         print('[Consumer] Consumeing %s...' % n)
         r = '200 OK'
+        print('eeeeeeeeeeee')
 
 def produce(c):
+    print('aaaaaaaaaaa')
     c.send(None)
+    print('bbbbbbbbbbb')
     n = 0
     while n < 5:
         n = n + 1
         print('[Producer] Producing %s' % n)
+        print('ccccccccccc')
         r = c.send(n)
+        print('ddddddddddd')
         print('[Producer] Consumer return: %s' % r)
     c.close()
 
@@ -70,8 +79,9 @@ async def hello():
     r = await asyncio.sleep(1)
     print('Hello, again')
 
-
-
+# loop = asyncio.get_event_loop()
+# loop.run_until_complete(hello())
+# loop.close()
 
 
 

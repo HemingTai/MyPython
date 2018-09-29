@@ -194,7 +194,6 @@ print(hex(n2))
 d = min
 print(d(1, 3, 6))
 
-
 def my_abs(x):
     if not isinstance(x, (int, float)):
         raise TypeError('bad operand type')
@@ -274,6 +273,8 @@ def digui(m):
 print(digui(10))
 
 # 3阶汉诺塔实现从A支架借助B支架移动到C支架上的步骤
+# 思路: 如果只有一个圆盘则直接移到C上
+#      如果有N(N>1)个圆盘，则将(N-1)个圆盘移到动B上，再将最后一个圆盘移到C上,最后把B上的(N-1)个圆盘移到C上
 def move(n, a, b, c):
     if n == 1:
         print(a, '-->', c)
@@ -338,6 +339,9 @@ print(g)
 for n in g:
     print(n)
 
+# yield 是一个类似 return 的关键字，只是这个函数返回的是个生成器
+# 当你调用这个函数的时候，函数内部的代码并不立马执行 ，这个函数只是返回一个生成器对象
+# 当你使用for进行迭代的时候，函数中的代码才会执行
 def fib(maxN):
     n, a, b = 0, 0, 1
     while n < maxN:
@@ -392,7 +396,6 @@ print(u)
 
 def normalize(name):
     return name[0].upper() + name[1:].lower()
-
 L2 = ['adam', 'LISA', 'barT']
 print(list(map(normalize, L2)))
 
@@ -556,13 +559,13 @@ def greeting(name):
 greeting('LiuDi')
 greeting('HT')
 
-im = Image.open('/Users/luo/Downloads/切片补充/icon_xs_rmb@2x.png')
+im = Image.open('/Users/apple/Documents/1.jpeg')
 print(im.format, im.size, im.mode)
 im.thumbnail((20,20))
-im.save('thumbnail.png', 'PNG')
-
+im.save('2.png', 'PNG')
+#
 print(sys.path)
-sys.path.append('/Users/luo/Desktop')
+sys.path.append('/Users/apple/Desktop')
 print(sys.path)
 
 # 定义一个类，继承自object类，拥有name和gender两个属性以及一个描述方法
@@ -1046,59 +1049,60 @@ n = int(s)
 logging.info('n = %d' % n)
 # print(10 / n)
 
+# 跟在表达式’…’后面的字符串符合括号之后的正则表达式，特殊构建不作为分组
 m = re.search('(?<=abc)def','abcdef')
 print(m.group(0))
 
 # 读文件调用open()函数，传入参数：文件路径，读写方式(r,rb,w,wb),rb,wb表示读或写二进制文件
 # 由于文件读写时都有可能产生IOError，一旦出错，后面的f.close()就不会调用。
 # 所以，为了保证无论是否出错都能正确地关闭文件，我们可以使用try ... finally来实现
-try:
-    f = open('/Users/luo/Desktop/cal.py','r')
-    print(f.read())
-except IOError as e:
-    print(e)
-finally:
-    if f:
-        f.close()
+# try:
+#     f = open('/Users/luo/Desktop/cal.py','r')
+#     print(f.read())
+# except IOError as e:
+#     print(e)
+# finally:
+#     if f:
+#         f.close()
 
 # Python引入了with语句来自动帮我们调用close()方法
 # 调用read()会一次性读取文件的全部内容，如果文件有10G，内存就爆了，
-# 所以，要保险起见，可以反复调用read(size)方法，每次最多读取size个字节的内容。
+# 所以，保险起见，可以反复调用read(size)方法，每次最多读取size个字节的内容。
 # 另外，调用readline()可以每次读取一行内容，调用readlines()一次读取所有内容并按行返回list。因此，要根据需要决定怎么调用。
-with open('/Users/luo/Desktop/cal.py','r') as f:
-    f.read()
+# with open('/Users/luo/Desktop/cal.py','r') as f:
+#     f.read()
 
 # for line in f.readlines():
 #     print(line.strip())
 
-e = open('/Users/luo/Desktop/PythonRepo/thumbnail.png','rb')
-print(e.read())
+# e = open('/Users/luo/Desktop/PythonRepo/thumbnail.png','rb')
+# print(e.read())
 
 # 要读取非UTF-8编码的文本文件，需要给open()函数传入encoding参数
-f = open('/Users/luo/Desktop/test.py', 'w')
-f.write('hello,world')
-f.close()
-
-with open('/Users/luo/Desktop/test.py', 'w') as f:
-    f.write('hahahahahhha')
-
-f = StringIO()
-f.write('hello')
-f.write(',')
-f.write('world!')
+# f = open('/Users/luo/Desktop/test.py', 'w')
+# f.write('hello,world')
+# f.close()
+#
+# with open('/Users/luo/Desktop/test.py', 'w') as f:
+#     f.write('hahahahahhha')
+#
+# f = StringIO()
+# f.write('hello')
+# f.write(',')
+# f.write('world!')
 # getvalue()方法用于获得写入后的str
-print(f.getvalue())
-
-f = StringIO('Hello\nHem1ng')
-for n in f.readlines():
-    print(n.strip())
-
-f = BytesIO()
-f.write('中文'.encode('utf-8'))
-print(f.getvalue())
-
-e = BytesIO(b'\xe4\xb8\xad\xe6\x96\x87')
-print(e.read())
+# print(f.getvalue())
+#
+# f = StringIO('Hello\nHem1ng')
+# for n in f.readlines():
+#     print(n.strip())
+#
+# f = BytesIO()
+# f.write('中文'.encode('utf-8'))
+# print(f.getvalue())
+#
+# e = BytesIO(b'\xe4\xb8\xad\xe6\x96\x87')
+# print(e.read())
 
 # pickle.dumps()方法把任意对象序列化成一个bytes，然后，就可以把这个bytes写入文件。
 # 或者用另一个方法pickle.dump()直接把对象序列化后写入一个file-like Object
@@ -1287,8 +1291,8 @@ t2.join()
 print('ended')
 
 # r表示字符串不转义
-print(re.match(r'^\d{3}\-\d{3,8}$','010-12345'))
-print(re.match(r'^\d{3}\-\d{3,8}$','010 12345'))
+print(re.match(r'^\d{3}-\d{3,8}$','010-12345'))
+print(re.match(r'^\d{3}-\d{3,8}$','010 12345'))
 
 # ^py$是只能匹配'py'
 text = input('please input text here:')
@@ -1299,7 +1303,7 @@ else:
 
 print('a b   c'.split(' '))
 print(re.split(r'\s+','a b   c'))
-print(re.split(r'[\s\,]+','a,b,   c,d'))
+print(re.split(r'[\s,]+','a,b,   c,d'))
 
 # 用()表示的就是要提取的分组（Group）
 # 如果正则表达式中定义了组，就可以在Match对象上用group()方法提取出子串来。
@@ -1311,7 +1315,7 @@ print(m.group(1))
 print(m.group(2))
 
 t = '19:20:30'
-m = re.match(r'^([0-1][0-9]|2[0-3])\:([0-5][0-9])\:([0-5][0-9])$',t)
+m = re.match(r'^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$',t)
 print(m)
 print(m.groups())
 
@@ -1326,14 +1330,11 @@ print(re.match(r'(\d+?)(0*)$','10023000').groups())
 re_tel = re.compile(r'^(\d{3})-(\d{3,8})$')
 print(re_tel.match('021-51203345').groups())
 
-re_mail = re.compile(r'^([0-9a-zA-Z\.\_]+)@([0-9a-zA-Z]+)\.(\w{3})$')
+re_mail = re.compile(r'^([0-9a-zA-Z._]+)@([0-9a-zA-Z]+)\.(\w{3})$')
 print(re_mail.match('someone@gmail.com'))
 print(re_mail.match('bill.gates@microsoft.com'))
 
-re_name_mail = re.compile(r'^\<([\w\s]+)\>\s+([a-zA-Z._]+)@(\W+)\.(\w{3})$')
+re_name_mail = re.compile(r'^<([\w\s]+)>\s+([a-zA-Z._]+)@(\W+)\.(\w{3})$')
 print(re_name_mail.match('<Tom paris> tom@voyager.com'))
-
-
-
 
 

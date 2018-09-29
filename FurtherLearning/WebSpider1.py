@@ -1,7 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import re, http.cookiejar, os, requests, time, configparser,queue, threading
+import re, http.cookiejar, os, requests, time, configparser, queue, threading
 from urllib import parse, request
 from bs4 import BeautifulSoup
 from selenium import webdriver

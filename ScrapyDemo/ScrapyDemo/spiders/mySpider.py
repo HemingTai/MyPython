@@ -19,7 +19,6 @@ class NewsSpider(Spider):
     start_urls = ['https://www.ithome.com/blog/']
 
     def parse(self, response):
-        print('bbbbb')
         # *********** 使用xpath解析 **************
         sel = scrapy.Selector(response)
         # xpath返回的是一个列表

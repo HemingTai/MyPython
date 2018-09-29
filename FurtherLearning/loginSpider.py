@@ -1,7 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, requests, pytesseract
+import os, requests
 from bs4 import BeautifulSoup
 from PIL import Image
 
@@ -32,7 +32,6 @@ class LoginSpider(object):
 
     def __image2text__(self):
         img = Image.open('1.png')
-        print(pytesseract.image_to_string(img,lang='eng'))
 
     def startCrawl(self):
         self.__getLoginHtml__()
@@ -52,7 +51,7 @@ class DoubanSpider(object):
     def __get_data__(self):
         self.__data__['source'] = 'index_nav'
         self.__data__['form_email'] = '964085993@qq.com'
-        self.__data__['form_password'] = 'daihuiming112911'
+        self.__data__['form_password'] = '***替换密码***'
         self.__data__['remember'] = 'on'
 
     def __login__(self):

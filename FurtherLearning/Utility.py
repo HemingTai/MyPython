@@ -68,28 +68,35 @@ def downloadVideo(url):
     else:
         print('视频已下载')
 
+def saveTaoGirlsDataToDatabase(modelArray):
+    con = mysql.connector.connect(user='root', password='99112911', database='pythonDB')
+    cursor = con.cursor()
+    for model in modelArray:
+        cursor.execute('insert into TaoGirls (userName, userId, homepageUrl, fansCount, iconUrl) values (%s, %s, %s, %s, %s)', [model.nickName, model.userId, model.homepage, model.fans, model.picUrl])
+    con.commit()
+    con.close()
+
 # 保存数据至数据库
-def saveDataToDatabase(data):
-    conn = mysql.connector.connect(user='root',password='99112911',database='Video')
+def saveVideoDataToDatabase(data):
+    conn = mysql.connector.connect(user='root',password='99112911',database='pythonDB')
     cur = conn.cursor()
     # 执行INSERT等操作后要调用commit()提交事务
     # MySQL的SQL占位符是%s
     if not isinstance(data, list):
         raise TypeError('type of data must be list')
     for item in data:
-        cur.execute('insert into t_video (category, title, url) values (%s, %s, %s)', ('国产', item['title'], item['url']))
-        if cur.rowcount > 0:
-            print('插入数据成功...')
+        for title, url in item.items():
+            cur.execute('insert into Videos (title, url) values (%s, %s)', [title, url])
     conn.commit()
     cur.close()
     conn.close()
 
-# 查询数据库数据
-def queryDataFromDatabse():
-    conn = mysql.connector.connect(user='root', password='99112911', database='Video')
-    cur = conn.cursor()
-    # cur.execute('select * from t_video where id = %s', ('1',))
-    value = cur.fetchall()
-    print(value)
-    cur.close()
-    conn.close()
+# # 查询数据库数据
+# def queryDataFromDatabse():
+#     conn = mysql.connector.connect(user='root', password='99112911', database='Video')
+#     cur = conn.cursor()
+#     # cur.execute('select * from t_video where id = %s', ('1',))
+#     value = cur.fetchall()
+#     print(value)
+#     cur.close()
+#     conn.close()
