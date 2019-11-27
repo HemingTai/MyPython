@@ -9,12 +9,12 @@ from functools import partial
 from FurtherLearning.Utility import *
 from multiprocessing.pool import Pool
 
+ORIGINAL_URL = 'http://www.zxxdz.com:8888/zxdz.html'
 
-ORIGINAL_URL = 'http://www.slb44.com/categories/'
 
 class VideoSpider(object):
 
-    def  __init__(self):
+    def __init__(self):
         self.__categoriesLinks__ = []
         self.__htmlLinks__ = []
         self.__videoLinks__ = []
@@ -28,7 +28,7 @@ class VideoSpider(object):
                 try:
                     content = resp.content.decode('utf-8', errors='ignore')
                 except Exception:
-                    logging.error('decode error url:',url)
+                    logging.error('decode error url:', url)
                 return BeautifulSoup(content, 'lxml')
         except Exception:
             logging.error('request error url:', url)
@@ -54,7 +54,7 @@ class VideoSpider(object):
                     temp = li_last.find('a')['data-parameters']
                     self.__pages__ = int(temp[23:])
                     for page in range(1, self.__pages__ + 1):
-                        self.__htmlLinks__.append({title: url+str(page)})
+                        self.__htmlLinks__.append({title: url + str(page)})
                 else:
                     self.__pages__ = 1
                     self.__htmlLinks__.append({title: url})
@@ -72,6 +72,8 @@ class VideoSpider(object):
                     a = div.find('a')
                     self.__videoLinks__.append({a['title']: a['href']})
         logging.info('解析视频播放地址结束')
+        print(self.__categoriesLinks__)
+        print(self.__videoLinks__)
         logging.info('开始写入数据库...')
         saveVideoDataToDatabase(self.__videoLinks__)
         logging.info('写入数据库完成')
@@ -84,8 +86,9 @@ class VideoSpider(object):
         self.__get_categoriesLinks__(ORIGINAL_URL)
         logging.info('解析网页完成')
         time_end = time.time()
-        logging.info('共耗时{time}s'.format(time=time_end-time_start))
+        logging.info('共耗时{time}s'.format(time=time_end - time_start))
         logging.info('爬虫结束')
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)

@@ -7,12 +7,13 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-
 __author__ = 'Hem1ng'
 
 '''
     豆瓣电影Top100爬虫
 '''
+
+
 class DouBanSpider(object):
 
     def __init__(self):
@@ -25,7 +26,7 @@ class DouBanSpider(object):
     # 获取当前页面内容
     def __getHTMLContent__(self, cur_page):
         url = self.cur_url
-        my_page = (request.urlopen(url.format(page=(cur_page - 1)*25))).read().decode('utf-8')
+        my_page = (request.urlopen(url.format(page=(cur_page - 1) * 25))).read().decode('utf-8')
         return my_page
 
     # 获取电影名称
@@ -37,7 +38,7 @@ class DouBanSpider(object):
         movie_items = re.findall(r'<span.*?class="title">(.*?)</span>', my_page, re.S)
         for index, item in enumerate(movie_items):
             if item.find('&nbsp;') == -1:
-                temp_data.append('Top'+str(self._top_num)+' '+item)
+                temp_data.append('Top' + str(self._top_num) + ' ' + item)
                 self._top_num += 1
         self.datas.extend(temp_data)
 
@@ -52,11 +53,11 @@ class DouBanSpider(object):
         per = 100.0 * a * b / c
         if per > 100:
             per = 100
-        print ('%.2f%%' % per)
+        print('%.2f%%' % per)
 
     # 下载图片
     def __downloadPic__(self, url, index):
-        imageName = os.path.join(os.path.abspath('.'), str(index)+'.jpg')
+        imageName = os.path.join(os.path.abspath('.'), str(index) + '.jpg')
         request.urlretrieve(url, imageName, self.abc)
 
     # 爬虫入口
@@ -67,13 +68,16 @@ class DouBanSpider(object):
             self.__find_picLinks__(my_page)
             self.__page__ += 1
         for index, link in enumerate(self.picLinks):
-            print(index,link)
-            self.__downloadPic__(link,index)
+            print(index, link)
+            self.__downloadPic__(link, index)
             break
+
 
 '''
     豆瓣上关于《猎场》的前100条热门影评
 '''
+
+
 class ReviewSpider(object):
 
     def __init__(self):
@@ -86,7 +90,7 @@ class ReviewSpider(object):
 
     # 获取热门影评页面内容
     def __getHTMLContent__(self, cur_page):
-        url = self.__pageUrl__.format(page=cur_page*20)
+        url = self.__pageUrl__.format(page=cur_page * 20)
         response = request.urlopen(url)
         page = response.read().decode('utf-8')
         return page
@@ -95,12 +99,12 @@ class ReviewSpider(object):
     def __getReviewLinkAndTitle__(self, content):
         temp_data = re.findall(r'<a.*?href="(.*?)".*?title="(.*?)".*?class="">', content)
         for item in temp_data:
-            self.__reviews__.append({'title':item[1],'url':item[0]})
+            self.__reviews__.append({'title': item[1], 'url': item[0]})
 
     # 获取评论回复页数
     def __getResponsePageNumber__(self, content):
         temp_data = re.findall(r'<a href=".*" >(\d+)</a>', content)
-        return(int(temp_data[-1]))
+        return (int(temp_data[-1]))
 
     # 获取影评和回复页面内容
     def __getResponseContent__(self, hostUrl, cur_page):
@@ -126,24 +130,16 @@ class ReviewSpider(object):
                       'AppleWebKit/537.36 (KHTML, like Gecko)'
                       'Chrome/63.0.3239.84 Safari/537.36')
         request_header = {
-            'Referer':'https://movie.douban.com/subject/26322642/discussion/?sort_by=vote',
-            'User-Agent':user_agent
+            'Referer': 'https://movie.douban.com/subject/26322642/discussion/?sort_by=vote',
+            'User-Agent': user_agent
         }
         return form_data, request_header
 
     # 获取表单提交信息
-    def __get_form_data__(self,id=None,solution=None):
-        form_data = {
-            'source': 'main',
-            'redir': 'https://movie.douban.com/subject/26322642/discussion/?sort_by=vote',
-            'form_email': '964085993@qq.com',
-            'form_password': '***替换密码***',
-            'captcha-solution': 'regret',
-            'captcha-id': '5KKmZCLHbNrys9v1ZzydQRNa:en',
-            'remember':'on',
-            'login': '登录'
-        }
-        form_data['captcha-id']=id
+    def __get_form_data__(self, id=None, solution=None):
+        form_data = {'source': 'main', 'redir': 'https://movie.douban.com/subject/26322642/discussion/?sort_by=vote',
+                     'form_email': '964085993@qq.com', 'form_password': '***替换密码***', 'captcha-solution': 'regret',
+                     'captcha-id': id, 'remember': 'on', 'login': '登录'}
         # form_data['captcha-solution']=solution
         return form_data
 
@@ -154,8 +150,8 @@ class ReviewSpider(object):
         cookie = http.cookiejar.MozillaCookieJar(fileName)
         opener = request.build_opener(request.HTTPCookieProcessor(cookie))
         request.install_opener(opener)
-        form_data, request_header = self.structure_loginHeaders('Qh9r9aDiCLRuRZt9eDIrBiCW:en',None)
-        req = request.Request(url,data=form_data,headers=request_header)
+        form_data, request_header = self.structure_loginHeaders('Qh9r9aDiCLRuRZt9eDIrBiCW:en', None)
+        req = request.Request(url, data=form_data, headers=request_header)
         resp = request.urlopen(req)
         cookie.save(ignore_discard=True, ignore_expires=True)
         text = resp.read().decode()
@@ -165,7 +161,7 @@ class ReviewSpider(object):
         captcha_id = re.findall(r'<img id="captcha_image" src="https://.*id=(.*?):en&amp;size=s".*?/>', text)
         # if len(captcha_id):
         #     form_data, request_header = self.structure_loginHeaders(captcha_id[0],'sneeze')
-        print('id =',captcha_id)
+        print('id =', captcha_id)
 
     def loginDoubanWithRequests(self):
         loginUrl = 'https://accounts.douban.com/login'
@@ -188,7 +184,14 @@ class ReviewSpider(object):
         # session = requests.session()
         # resp = session.post(loginUrl,data=loginData,headers=header)
         # r = session.get('https://www.douban.com/settings/')
-        cookies = {'bid':'yQsMh13PJfs','ps':'y','push_doumail_num':'0','push_noty_num':'0','ue':'"964085993@qq.com"	','ap':'1','ck':'NSsp','dbcl2':'"59490556:et0rMKMIL/I"', '__utmc':'30149280','__utmz':'30149280.1513834668.1.1.utmcsr=accounts.douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/login', '__utma':'30149280.988031542.1513834668.1513834668.1513834668.1','__utmv':'30149280.5949','__utmt':'', '__utmb':'','__yadk_uid':'Gyx8o19L8IwW4YsPKir1odHLuoyyRWuc','_pk_id.100001.8cb4':'ea8d4cc08f313e2e.1513834667.1.1513834667.1513834667.','_pk_ref.100001.8cb4':'%5B%22%22%2C%22%22%2C1513834667%2C%22https%3A%2F%2Faccounts.douban.com%2Flogin%3Falias%3D964085993%2540qq.com%26redir%3Dhttps%253A%252F%252Fwww.douban.com%26source%3DNone%26error%3D1011%22%5D'}
+        cookies = {'bid': 'yQsMh13PJfs', 'ps': 'y', 'push_doumail_num': '0', 'push_noty_num': '0',
+                   'ue': '"964085993@qq.com"	', 'ap': '1', 'ck': 'NSsp', 'dbcl2': '"59490556:et0rMKMIL/I"',
+                   '__utmc': '30149280',
+                   '__utmz': '30149280.1513834668.1.1.utmcsr=accounts.douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/login',
+                   '__utma': '30149280.988031542.1513834668.1513834668.1513834668.1', '__utmv': '30149280.5949',
+                   '__utmt': '', '__utmb': '', '__yadk_uid': 'Gyx8o19L8IwW4YsPKir1odHLuoyyRWuc',
+                   '_pk_id.100001.8cb4': 'ea8d4cc08f313e2e.1513834667.1.1513834667.1513834667.',
+                   '_pk_ref.100001.8cb4': '%5B%22%22%2C%22%22%2C1513834667%2C%22https%3A%2F%2Faccounts.douban.com%2Flogin%3Falias%3D964085993%2540qq.com%26redir%3Dhttps%253A%252F%252Fwww.douban.com%26source%3DNone%26error%3D1011%22%5D'}
         # r = session.get('https://www.douban.com/settings/',cookies=cookies)
         # 需要登录分两种情况：
         # 第一种手动登陆后从浏览器获取登陆后的cookie，再请求需要登录的页面
@@ -205,7 +208,6 @@ class ReviewSpider(object):
         # cookiesDic = dict(cookies)
         # print(cookiesDic)
         self.loginDoubanWithRequests()
-
 
         # self.__login_douban__()
         # page = 0
@@ -227,19 +229,22 @@ class ReviewSpider(object):
         # for c in self.__resp__:
         #     print(c)
 
+
 def makeDir(path):
     path = path.strip()
     isExist = os.path.exists(path)
     if not isExist:
         os.makedirs(path)
 
+
 def saveImg(url, name):
     img = requests.get(url)
     time.sleep(3)
-    fileName = name+'.jpg'
-    with open(fileName,'ab') as f:
+    fileName = name + '.jpg'
+    with open(fileName, 'ab') as f:
         f.write(img.content)
         print('保存成功')
+
 
 def downloadImage(q):
     while True:
@@ -255,14 +260,16 @@ def downloadImage(q):
             f.write(img.content)
             print('保存成功')
 
+
 def scroll_down(driver, times):
     for i in range(times):
-        print('执行第%s次下拉操作' % str(i+1))
-        driver.execute_script('window.scrollTo(0, document.body.scrollHeight);') # 执行js实现网页下拉到底
-        print('第%s次下拉操作执行完毕' % str(i+1))
+        print('执行第%s次下拉操作' % str(i + 1))
+        driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')  # 执行js实现网页下拉到底
+        print('第%s次下拉操作执行完毕' % str(i + 1))
         print('等待网页加载')
-        time.sleep(10) # 等待网页加载
+        time.sleep(10)  # 等待网页加载
         print(driver.page_source)
+
 
 if __name__ == '__main__':
     # ************** 电影Top100 *************** #
@@ -361,19 +368,19 @@ if __name__ == '__main__':
     for li in all_li:
         album_img = li.find('img')['src']
         endpos = album_img.index('?')
-        album_name = li.find('a',class_='tit s-fc0').string
+        album_name = li.find('a', class_='tit s-fc0').string
         album_time = li.find('span').string
-        datas.append({'img':album_img[:endpos],'name':album_name,'time':album_time})
-    imgDir = os.path.join(os.path.abspath('.'),'img')
+        datas.append({'img': album_img[:endpos], 'name': album_name, 'time': album_time})
+    imgDir = os.path.join(os.path.abspath('.'), 'img')
     makeDir(imgDir)
     os.chdir(imgDir)
-    fileNames = os.listdir(imgDir) # 获取当前路径下所有文件及子文件夹的名字
+    fileNames = os.listdir(imgDir)  # 获取当前路径下所有文件及子文件夹的名字
     # 单线程下载图片
     # for item in datas:
     #     if item['time']+'-'+item['name']+'.jpg' in fileNames:
     #         print('图片已存在')
     #     else:
-            # saveImg(item['img'],item['time']+'-'+item['name'])
+    # saveImg(item['img'],item['time']+'-'+item['name'])
 
     # 多线程下载图片
     q = queue.Queue()

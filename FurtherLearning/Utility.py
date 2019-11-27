@@ -1,13 +1,13 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author = 'Hem1ng'
+__author__ = 'Hem1ng'
 
 
 import os, requests
 from pathlib import Path
 from contextlib import closing
-import mysql.connector
+import mysql.connector # ****** pip install mysql-connector-python ******#
 
 # 默认文件下载路径
 DOWNLOAD_PATH = os.path.join(os.path.expanduser(r'~/Downloads'), 'Temp')
@@ -91,12 +91,12 @@ def saveVideoDataToDatabase(data):
     cur.close()
     conn.close()
 
-# # 查询数据库数据
-# def queryDataFromDatabse():
-#     conn = mysql.connector.connect(user='root', password='99112911', database='Video')
-#     cur = conn.cursor()
-#     # cur.execute('select * from t_video where id = %s', ('1',))
-#     value = cur.fetchall()
-#     print(value)
-#     cur.close()
-#     conn.close()
+# 查询数据库数据
+def queryDataFromDatabse():
+    conn = mysql.connector.connect(user='root', password='99112911', database='Video')
+    cur = conn.cursor()
+    # cur.execute('select * from t_video where id = %s', ('1',))
+    value = cur.fetchall()
+    print(value)
+    cur.close()
+    conn.close()

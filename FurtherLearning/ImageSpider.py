@@ -1,7 +1,7 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__author = 'Hem1ng'
+__author__ = 'Hem1ng'
 
 import os, requests, time, queue, threading
 from multiprocessing.pool import Pool
@@ -9,9 +9,9 @@ from functools import partial
 from bs4 import BeautifulSoup
 from pathlib import Path
 
-# 爬虫爬取的原始url
-ORIGINAL_URL = 'http://desk.zol.com.cn/youxi/yingxionglianmeng/'
+# 爬虫爬取的原始url'
 # 网页的域名
+ORIGINAL_URL = 'http://desk.zol.com.cn/youxi/yingxionglianmeng/'
 HOST_URL = 'http://desk.zol.com.cn'
 # 图片下载路径
 DOWNLOAD_PATH = os.path.join(os.path.expanduser(r'~/Downloads'), 'Temp')
@@ -28,27 +28,31 @@ def setImageDownloadPath(path):
         downloadPath.mkdir()
     os.chdir(path)
 
+
 # 图片是否需要下载
 def isDownloadImage(url):
     return checkImageIsDownloaded(url)
 
+
 # 检测图片是否已经下载
-def checkImageIsDownloaded(path, url):
+def checkImageIsDownloaded(url):
     image_name = os.path.basename(url)
-    fileNames = os.listdir(path)
+    file_names = os.listdir(DOWNLOAD_PATH)
     # 如果文件名不存在则需要下载图片
-    if not image_name in fileNames:
+    if not image_name in file_names:
         return True
     else:
         return False
+
 
 # 下载图片
 def downloadImage(url):
     # 以路径的最后一部分作为图片的名字
     image_name = '{}'.format(os.path.basename(url))
     image = requests.get(url)
-    with open(image_name,'wb') as f:
+    with open(image_name, 'wb') as f:
         f.write(image.content)
+
 
 # *********** 爬取LOL壁纸下载链接并下载图片 ***********
 
@@ -74,13 +78,13 @@ class ImageSpider(object):
         return html_links
 
     # 解析html网页内容以获取网页链接
-    def __parse_htmlLinks__(self, htmlContent):
-        soup = BeautifulSoup(htmlContent, 'lxml')
+    def __parse_htmlLinks__(self, html_content):
+        soup = BeautifulSoup(html_content, 'lxml')
         all_li = soup.find_all('li', class_='photo-list-padding')
         html_links = []
         for li in all_li:
             a = li.find('a')
-            html_links.append(HOST_URL+a['href'])
+            html_links.append(HOST_URL + a['href'])
         return html_links
 
     # 获取所有图片的下载链接
@@ -89,13 +93,13 @@ class ImageSpider(object):
         self.__parse_imageLinkAndNextPageUrl__(html_content)
 
     # 解析html网页内容以获取图片链接
-    def __parse_imageLinkAndNextPageUrl__(self, htmlContent):
-        soup = BeautifulSoup(htmlContent, 'lxml')
+    def __parse_imageLinkAndNextPageUrl__(self, html_content):
+        soup = BeautifulSoup(html_content, 'lxml')
         img = soup.find('img', id='bigImg')
         self.__image_links__.append(img['src'])
         a = soup.find('a', id='pageNext')
         if not a['href'] == 'javascript:;':
-            temp_url = HOST_URL+a['href']
+            temp_url = HOST_URL + a['href']
             self.__get_imageLinks__(temp_url)
 
     # 爬虫开始爬取
@@ -137,13 +141,13 @@ class ImageSpider(object):
         for url in self.__image_links__:
             # 检验是否需要下载图片
             if isDownloadImage(url):
-        #********** 单线程 ***************
+                # ********** 单线程 ***************
                 # 单线程下载大约127s，请注意花费的时间因网络状况、快慢等不同会有所差异
                 # downloadImage(url)
-        # '''
+                # '''
 
-        # '''
-        # ********* 多线程 ***************
+                # '''
+                # ********* 多线程 ***************
                 # 多线程下载大约54秒，因为GIL的限制，同一时间仍然只有一个线程在执行，所以代码只是并发执行而不是并行执行。
                 # 其比单线程下载更快的原因是因为下载图片是IO密集型的操作，当下载图片时处理器便空闲了下来，可以切换到其他线程继续执行，处理器花费的时间主要在等待网络连接上。
                 q.put(url)
@@ -160,9 +164,10 @@ class ImageSpider(object):
             p.map(download, self.__image_links__)
         '''
 
-        print('共下载%s张图片'%len(self.__image_links__))
+        print('共下载%s张图片' % len(self.__image_links__))
         time_end = time.time()
-        print('共耗时',time_end - time_start)
+        print('共耗时', time_end - time_start)
+
 
 # ************** 多线程下载图片 *******************
 
@@ -183,8 +188,5 @@ class DownloadWorker(threading.Thread):
 
 
 if __name__ == '__main__':
-
     imgSpider = ImageSpider()
     imgSpider.start_spider()
-
-

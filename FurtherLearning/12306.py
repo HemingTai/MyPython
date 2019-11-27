@@ -35,12 +35,12 @@ class Ticket(object):
         self.seat_O = ''                # 其他
 
     def __repr__(self):
-        return '车次：%s 出发站：%s 到达站：%s 出发时间：%s 到达时间：%s 历时：%s 二等座：%s\n' %(self.trainId,self.onStationName,self.offStationName,self.travelTime,self.arrivalTime,self.durationTimeH,self.seat_ED)
+        return '车次：%s 出发站：%s 到达站：%s 出发时间：%s 到达时间：%s 历时：%s 二等座：%s\n' % (self.trainId, self.onStationName, self.offStationName, self.travelTime, self.arrivalTime, self.durationTimeH, self.seat_ED)
 
 ALLSTATIONCODE = None
 ALLSTATIONNAME = None
-ALLType = {'普通票':'ADULT','成人票':'ADULT','学生票':'0x00'}
-SEAT = Enum('SEAT',('SW','YD','ED','SRW','RW','DW','YW','R','Y','W','O'))
+ALLType = {'普通票': 'ADULT', '成人票': 'ADULT', '学生票': '0x00'}
+SEAT = Enum('SEAT', ('SW', 'YD', 'ED', 'SRW', 'RW', 'DW', 'YW', 'R', 'Y', 'W', 'O'))
 
 # 获取所有站点的code
 def getAllStationCode():
@@ -52,6 +52,7 @@ def getAllStationCode():
     global ALLSTATIONCODE, ALLSTATIONNAME
     ALLSTATIONCODE = {item[1]:item[2] for item in group}
     ALLSTATIONNAME = {item[2]:item[1] for item in group}
+
 # 历时转换成分钟用于筛选
 def convertDurationTimeToMinutes(duration):
     if not isinstance(duration, str):
@@ -161,11 +162,11 @@ def getSeatTicketList(*, date, duration, onStation, offStation, ticketType='ADUL
     return seatTicketList
 
 if __name__ == '__main__':
-    date = '2018-09-20'
-    departure = '上海虹桥'
-    destination = '南昌西'
+    date = '2019-08-32'
+    departure = '上海'
+    destination = '南京'
     departure_on = '上海虹桥'
-    destination_off = '南昌西'
+    destination_off = '南京南'
     ticketType = '成人票'
     duration = 180
     # 先获取所有站点code
@@ -175,5 +176,7 @@ if __name__ == '__main__':
     # 获取筛选历时后的车次信息
     # durationTicketList = getDurationTicket(date=date,duration=duration, onStation=ALLSTATIONCODE[departure_on], offStation=ALLSTATIONCODE[destination_off], ticketType=ALLType[ticketType])
     # 获取筛选座位后的车次信息
-    seatTicketList = getSeatTicketList(date=date, duration=duration, onStation=ALLSTATIONCODE[departure_on], offStation=ALLSTATIONCODE[destination_off], ticketType=ALLType[ticketType], seatType=SEAT.ED)
+    # seatTicketList = getSeatTicketList(date=date, duration=duration, onStation=ALLSTATIONCODE[departure_on], offStation=ALLSTATIONCODE[destination_off], ticketType=ALLType[ticketType], seatType=SEAT.ED)
+    # 获取所有车次信息
+    seatTicketList = getAllTicketInfo(date=date, fromStation=ALLSTATIONCODE[departure_on], toStation=ALLSTATIONCODE[destination_off], ticketType=ALLType[ticketType])
     print(seatTicketList)
