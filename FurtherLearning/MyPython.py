@@ -4,8 +4,6 @@
 __author__ = 'Hem1ng'
 
 import requests
-from FurtherLearning.Utility import *
-
 
 # 网易云音乐某歌曲的热门评论
 class Music163Spider(object):
@@ -31,9 +29,8 @@ class Music163Spider(object):
         finalUrl = (url + '?limit=%s&offset=%s') % (limit, (page - 1) * 20)
         resp = requests.get(finalUrl, headers=self.__headers)
         jsonData = resp.json()
-        print(jsonData)
-        # print(jsonData['comments'])
-        # print(jsonData['total'])
+        print(jsonData['comments'])
+        print(jsonData['total'])
 
     # 开始爬取
     def startSpider(self, url, limit, page):
@@ -155,8 +152,8 @@ if __name__ == '__main__':
     spider = Music163Spider()
     spider.startSpider("http://music.163.com/api/v1/resource/comments/R_SO_4_436514312", 20, 1)
 
-    ttSpider = TouTiaoSpider()
-    ttSpider.startSpider()
+    # ttSpider = TouTiaoSpider()
+    # ttSpider.startSpider()
 
     # spider = TaoGirlSpider()
     # spider.startSpider("https://v.taobao.com/micromission/req/selectCreatorV3.do?cateType=704&currentPage={page}&_ksTS=1537508050015_73&callback=jsonp74")
